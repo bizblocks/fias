@@ -57,6 +57,7 @@
                 <button id="pauseLoadingDataBtn"
                         caption="msg://pauseLoadingDataBtn"
                         disableOnClick="true"
+                        enable="false"
                         invoke="onPauseLoadingDataBtnClick"/>
                 <button id="resetProgressButton"
                         caption="msg://resetProgressButton"
