@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        class="com.groupstp.fias.web.screens.Fiasclientv2"
+        messagesPack="com.groupstp.fias.web.screens">
+    <dsContext>
+        <collectionDatasource id="regionsDs"
+                              class="com.groupstp.fias.entity.Region"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from fias$Region e order by e.name]]>
+            </query>
+        </collectionDatasource>
+        <collectionDatasource id="citiesDs"
+                              class="com.groupstp.fias.entity.City"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from fias$City e order by e.name]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="fakeLbl"
+            spacing="true">
+        <checkBox id="regionCheckField"
+                  caption="msg://regionCheckField"/>
+        <checkBox id="autonomyCheckField"
+                  caption="msg://autonomyCheckField"/>
+        <checkBox id="areaCheckField"
+                  caption="msg://areaCheckField"/>
+        <checkBox id="cityCheckField"
+                  caption="msg://cityCheckField"/>
+        <checkBox id="communityCheckField"
+                  caption="msg://communityCheckField"/>
+        <checkBox id="locationCheckField"
+                  caption="msg://locationCheckField"/>
+        <checkBox id="streetCheckField"
+                  caption="msg://streetCheckField"/>
+        <checkBox id="houseCheckField"
+                  caption="msg://houseCheckField"/>
+        <lookupField id="regionField"
+                     caption="msg://regionToLoadField"
+                     optionsDatasource="regionsDs"
+                     width="400px"/>
+        <lookupField id="cityField"
+                     caption="msg://cityToLoadField"
+                     optionsDatasource="citiesDs"
+                     width="400px"/>
+        <vbox id="vbox"
+              spacing="true"
+              width="AUTO">
+            <buttonsPanel id="buttonPanel">
+                <button id="loadDataBtn"
+                        caption="msg://loadDataBtn"
+                        disableOnClick="true"
+                        invoke="onBtnClick"/>
+                <button id="pauseLoadingDataBtn"
+                        caption="msg://pauseLoadingDataBtn"
+                        disableOnClick="true"
+                        invoke="onPauseLoadingDataBtnClick"/>
+                <button id="resetProgressButton"
+                        caption="msg://resetProgressButton"
+                        disableOnClick="true"
+                        invoke="onResetProgressButtonClick"/>
+            </buttonsPanel>
+            <hbox spacing="true">
+                <progressBar id="progressBar"
+                             width="335px"/>
+                <label id="progressLabel"
+                       align="MIDDLE_CENTER"
+                       height="50px"
+                       width="50px"/>
+            </hbox>
+        </vbox>
+        <label id="fakeLbl"/>
+    </layout>
+</window>
