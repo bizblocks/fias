@@ -3,7 +3,7 @@ package com.groupstp.fias.service;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.groupstp.fias.client.FiasClientFork;
-import com.groupstp.fias.config.FiasServiceConfig;
+import com.groupstp.fias.utils.config.FiasServiceConfig;
 import com.groupstp.fias.entity.*;
 import com.groupstp.fias.entity.enums.FiasEntityOperationStatus;
 import com.groupstp.fias.entity.enums.FiasEntityStatus;

@@ -10,4 +10,6 @@
             template="com/groupstp/fias/web/house/house-edit.xml"/>
     <screen id="fias$FiasEntity.edit"
             template="com/groupstp/fias/web/fiasentity/fias-entity-edit.xml"/>
+    <screen id="fiasClientv2"
+            template="com/groupstp/fias/web/screens/fiasClientv2.xml"/>
 </screen-config>
