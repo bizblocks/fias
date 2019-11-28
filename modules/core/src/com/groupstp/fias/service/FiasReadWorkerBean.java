@@ -11,6 +11,7 @@ import com.haulmont.cuba.core.Persistence;
 import com.haulmont.cuba.core.global.Configuration;
 import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.PersistenceHelper;
+import com.haulmont.cuba.core.global.Resources;
 import org.meridor.fias.AddressObjects;
 import org.meridor.fias.FiasClient;
 import org.meridor.fias.Houses;
@@ -39,6 +40,8 @@ public class FiasReadWorkerBean implements FiasReadService {
     private Configuration configuration;
     @Inject
     private Persistence persistence;
+    @Inject
+    private Resources resources;
 
     private FiasClient fiasClient;
     private Path xmlDirectory;
@@ -281,5 +284,38 @@ public class FiasReadWorkerBean implements FiasReadService {
         if (fiasEntity.getParent() != null) {
             findFiasEntityParent(fiasEntity.getParent(), entityMap);
         }
+    }
+
+    @Override
+    public Map<String, String> getMapOfRegionsFromFias() {
+        Map<String, String> regions = new LinkedHashMap<>();
+        String sqlString = "SELECT fe.id  region_id, " +
+                "(fe.name || ' ' || fe.shortname) AS name " +
+                "FROM fias_fias_entity fe " +
+                "WHERE dtype = 'fias$Region' " +
+                "ORDER BY name ASC";
+        final List<Object[]> resultList = persistence.callInTransaction(em ->
+                em.createNativeQuery(sqlString)
+                        .getResultList());
+        for (Object[] result : resultList) {
+            regions.put(result[1].toString(), result[0].toString());
+        }
+        return regions;
+    }
+
+    @Override
+    public Map<String, String> getMapOfCitiesFromFias(String regionId) {
+        Map<String, String> regions = new LinkedHashMap<>();
+        String sqlString = resources.getResourceAsString("com/groupstp/fias/core/sql/get-fias-cities-by-region.sql");
+
+        final UUID regionUuid = UUID.fromString(regionId);
+        final List<Object[]> resultList = persistence.callInTransaction(em ->
+                em.createNativeQuery(sqlString)
+                        .setParameter("parentId", regionUuid)
+                        .getResultList());
+        for (Object[] result : resultList) {
+            regions.put(result[1].toString(), result[0].toString());
+        }
+        return regions;
     }
 }

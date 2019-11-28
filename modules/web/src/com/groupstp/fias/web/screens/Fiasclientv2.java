@@ -2,6 +2,7 @@ package com.groupstp.fias.web.screens;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.groupstp.fias.service.FiasReadService;
 import com.groupstp.fias.utils.client.AddressObjectFork;
 import com.groupstp.fias.utils.client.FiasClientFork;
 import com.groupstp.fias.utils.client.PartialUnmarshallerFork;
@@ -43,6 +44,8 @@ public class Fiasclientv2 extends AbstractWindow {
     private static final Logger log = LoggerFactory.getLogger("FiasClient");
     @Inject
     private BackgroundWorker backgroundWorker;
+    @Inject
+    private FiasReadService fiasReadService;
 
     @Inject
     private CheckBox regionCheckField;
@@ -92,7 +95,9 @@ public class Fiasclientv2 extends AbstractWindow {
 
     @Override
     public void init(Map<String, Object> params) {
+        regionField.setOptionsMap(getMapOfRegionsFromFias());
         setupCloseWindowListeners();
+        setupChangeRegionLkf();
     }
 
     public void onBtnClick() {
@@ -106,9 +111,9 @@ public class Fiasclientv2 extends AbstractWindow {
         options.put(AddressLevel.STREET, streetCheckField.getValue());
         options.put("needLoadHouses", houseCheckField.getValue());
         if (regionField.getValue() != null)
-            options.put("regionId", ((FiasEntity) regionField.getValue()).getId());
+            options.put("regionId", (regionField.getValue()));
         if (cityField.getValue() != null)
-            options.put("cityId", ((FiasEntity) cityField.getValue()).getId());
+            options.put("cityId", (cityField.getValue()));
 
         taskHandler = backgroundWorker.handle(createBackgroundTask(options));
         taskHandler.execute();
@@ -129,8 +134,10 @@ public class Fiasclientv2 extends AbstractWindow {
                 taskWasStarted = true;
                 String path = configuration.getConfig(FiasServiceConfig.class).getPath();
                 int batchSize = configuration.getConfig(FiasServiceConfig.class).getBatchSize();
-                UUID regionId = ((UUID) options.getOrDefault("regionId", null));
-                UUID cityId = ((UUID) options.getOrDefault("cityId", null));
+                //UUID regionId = ((UUID) options.getOrDefault("regionId", null));
+                //UUID cityId = ((UUID) options.getOrDefault("cityId", null));
+                UUID regionId = UUID.fromString((String) options.get("regionId"));
+                UUID cityId = UUID.fromString((String) options.get("cityId"));
                 xmlDirectory = Paths.get(path);
                 fiasClient = new FiasClientFork(xmlDirectory);
                 Path filePath = getPathByPattern(ADDRESS_OBJECTS.getName());
@@ -782,6 +789,12 @@ public class Fiasclientv2 extends AbstractWindow {
         });
     }
 
+    //слушатель на изменение региона
+    private void setupChangeRegionLkf() {
+        regionField.addValueChangeListener(e ->
+                cityField.setOptionsMap(getMapOfCitiesFromFias(regionField.getValue())));
+    }
+
     //обновляем доступность кнопок
     private void setupControlButtons(boolean taskIsStopped) {
         if (taskIsStopped) {
@@ -797,5 +810,13 @@ public class Fiasclientv2 extends AbstractWindow {
 
     private void sendToLog(String text) {
         log.info(text);
+    }
+
+    private Map<String, String> getMapOfRegionsFromFias() {
+        return fiasReadService.getMapOfRegionsFromFias();
+    }
+
+    private Map<String, String> getMapOfCitiesFromFias(String regionId) {
+        return fiasReadService.getMapOfCitiesFromFias(regionId);
     }
 }
