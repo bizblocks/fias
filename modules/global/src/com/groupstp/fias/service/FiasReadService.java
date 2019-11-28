@@ -19,4 +19,14 @@ public interface FiasReadService {
 
     Map<Class, FiasEntity> getAddressComponents(UUID houseId);
 
+    /**
+     * Получает регионы (Map<fiasId, Название>) из БД ФИАС.
+     */
+    Map<String, String> getMapOfRegionsFromFias();
+
+    /**
+     * Получает города (Map<fiasId, Название>) по указанному региону из БД ФИАС.
+     */
+    Map<String, String> getMapOfCitiesFromFias(String regionId);
+
 }
