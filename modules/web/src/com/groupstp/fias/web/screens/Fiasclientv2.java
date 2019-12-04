@@ -485,7 +485,8 @@ public class Fiasclientv2 extends AbstractWindow {
             @Override
             public void done(Void result) {
                 showNotification(getMessage("loadDone"));
-                updateConfigProgress(clazz, 0);
+                if (clazz != null)
+                    updateConfigProgress(clazz, 0);
                 progressBar.setValue(1f);
                 progressLabel.setValue("100%");
                 setupControlButtons(true);
