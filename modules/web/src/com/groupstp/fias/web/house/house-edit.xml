@@ -23,7 +23,7 @@
                 <field property="strstatus"/>
                 <field property="startdate"/>
                 <field property="enddate"/>
-                <field property="parent"/>
+                <field property="parentAdm"/>
                 <field property="postalcode"/>
                 <field property="ifnsfl"/>
                 <field property="terrifnsul"/>

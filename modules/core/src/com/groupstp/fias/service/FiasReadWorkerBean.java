@@ -257,7 +257,7 @@ public class FiasReadWorkerBean implements FiasReadService {
         if (!PersistenceHelper.isLoaded(house, "parent"))
             house = dataManager.reload(house, "parent");
 
-        final FiasEntity fiasEntity = house.getParent();
+        final FiasEntity fiasEntity = house.getParentAdm();
 
         final HashMap<Class, FiasEntity> entityMap = new HashMap<>();
         findFiasEntityParent(fiasEntity, entityMap);

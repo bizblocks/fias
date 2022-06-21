@@ -4,6 +4,7 @@ import com.groupstp.fias.entity.enums.FiasEntityStatus;
 import com.groupstp.fias.service.FiasReadService;
 import com.groupstp.fias.utils.client.AddressObjectFork;
 import com.groupstp.fias.utils.client.GarClientFork;
+import com.groupstp.fias.utils.client.PartialUnmarshallerFork;
 import com.groupstp.fias.utils.config.FiasServiceConfig;
 import com.groupstp.fias.entity.*;
 import com.haulmont.cuba.core.global.CommitContext;
@@ -17,6 +18,7 @@ import com.haulmont.cuba.gui.executors.BackgroundWorker;
 import com.haulmont.cuba.gui.executors.TaskLifeCycle;
 import dev.smartdata.gar.ADDRESSOBJECTS;
 import dev.smartdata.gar.HOUSES;
+import dev.smartdata.gar.PARAMS;
 import org.meridor.fias.enums.AddressLevel;
 import org.meridor.fias.enums.FiasFile;
 import org.meridor.fias.loader.XMLLoader;
@@ -39,6 +41,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static org.meridor.fias.enums.FiasFile.ADDRESS_OBJECTS;
+import static org.meridor.fias.enums.FiasFile.HOUSE;
 
 public class Fiasclientv2 extends AbstractWindow {
     private static final Logger log = LoggerFactory.getLogger("FiasClient");
@@ -63,10 +66,10 @@ public class Fiasclientv2 extends AbstractWindow {
     private CheckBox streetCheckField;
     @Inject
     private CheckBox houseCheckField;
-    @Inject
-    private LookupField regionField;
-    @Inject
-    private LookupField cityField;
+//    @Inject
+//    private LookupField regionField;
+//    @Inject
+//    private LookupField cityField;
     @Inject
     private ProgressBar progressBar;
     @Inject
@@ -97,11 +100,12 @@ public class Fiasclientv2 extends AbstractWindow {
 
     Map<Long, Long> admParents;
     Map<Long, Long> munParents;
+    Map<Long, Map<String, Object>> parameters;
 
 
     @Override
     public void init(Map<String, Object> params) {
-        regionField.setOptionsMap(getMapOfRegionsFromFias());
+//        regionField.setOptionsMap(getMapOfRegionsFromFias());
         setupCloseWindowListeners();
         setupChangeRegionLkf();
     }
@@ -117,10 +121,10 @@ public class Fiasclientv2 extends AbstractWindow {
         options.put(AddressLevel.PLANNING_STRUCTURE, planStructCheckField.getValue());
         options.put(AddressLevel.STREET, streetCheckField.getValue());
         options.put("needLoadHouses", houseCheckField.getValue());
-        if (regionField.getValue() != null)
-            options.put("regionId", (regionField.getValue()));
-        if (cityField.getValue() != null)
-            options.put("cityId", (cityField.getValue()));
+//        if (regionField.getValue() != null)
+//            options.put("regionId", (regionField.getValue()));
+//        if (cityField.getValue() != null)
+//            options.put("cityId", (cityField.getValue()));
 
         taskHandler = backgroundWorker.handle(createBackgroundTask(options));
         taskHandler.execute();
@@ -188,43 +192,49 @@ public class Fiasclientv2 extends AbstractWindow {
                     loadObjects(Street.class, AddressLevel.STREET, filePath, taskLifeCycle);
                 }
 
-//                //грузим Houses
-//                if ((boolean) options.getOrDefault("needLoadHouses", true)) {
-//                    //Class<House> clazz = House.class;
-//                    clazz = House.class;
-//                    lastClassWorked = clazz;
-//                    Path filePathHouses = getPathByPattern(HOUSE.getName());
-//                    progress = getConfigProgress(clazz);
-//                    PartialUnmarshallerFork<Houses.House> pum = garClient.getUnmarshallerFork(Houses.House.class, progress);
-//                    sendToLog(MessageFormat.format("Start Creating objects of class {0}", clazz.getSimpleName()));
-//                    List<House> houses = new ArrayList<>();
-//                    while (pum.hasNext()) {
-//                        if (taskLifeCycle.isCancelled() || taskLifeCycle.isInterrupted()) {
-//                            break;
-//                        } else {
-//                            final Houses.House fiasHouse = pum.next();
-//                            House house = getHouseEntity(fiasHouse);
-//                            house = processHouseEntity(fiasHouse, house);
-//                            if (house != null)
-//                                houses.add(house);
-//                        }
-//                        progress = pum.getInputStream().getProgress();
-//                        percentValue = (int) (Math.abs((double) progress / (double) Files.size(filePathHouses) * 100));
-//                        taskLifeCycle.publish(percentValue);
-//                        if (houses.size() == batchSize) {
-//                            CommitContext commitContext = new CommitContext(houses);
-//                            dataManager.commit(commitContext);
-//                            log.debug(MessageFormat.format("{0} new Houses were processed (class = {1}), reached {2}% of file",
-//                                    houses.size(),
-//                                    clazz.getSimpleName(),
-//                                    percentValue));
-//                            houses.clear();
-//                        }
-//                    }
-//                    sendToLog(MessageFormat.format("Finished Creating objects of class {0}", clazz.getSimpleName()));
-//                }
+                //грузим Houses
+                if ((boolean) options.getOrDefault("needLoadHouses", true)) {
+                    loadHouses(taskLifeCycle);
+                }
 
                 return null;
+            }
+
+            private void loadHouses(TaskLifeCycle<Integer> taskLifeCycle) throws IOException, InterruptedException, JAXBException {
+                loadParameters();
+                int batchSize = configuration.getConfig(FiasServiceConfig.class).getBatchSize();
+                clazz = House.class;
+                lastClassWorked = clazz;
+                Path filePathHouses = getPathByPattern(HOUSE.getName());
+                progress = getConfigProgress(clazz);
+                PartialUnmarshallerFork<HOUSES.HOUSE> pum = garClient.getUnmarshallerFork(HOUSES.HOUSE.class, progress);
+                sendToLog(MessageFormat.format("Start Creating objects of class {0}", clazz.getSimpleName()));
+                List<House> houses = new ArrayList<>();
+                while (pum.hasNext()) {
+                    if (taskLifeCycle.isCancelled() || taskLifeCycle.isInterrupted()) {
+                        break;
+                    } else {
+                        final HOUSES.HOUSE fiasHouse = pum.next();
+                        House house = getHouseEntity(fiasHouse);
+                        house = processHouseEntity(fiasHouse, house);
+                        if (house != null)
+                            houses.add(house);
+                    }
+                    progress = pum.getInputStream().getProgress();
+                    percentValue = (int) (Math.abs((double) progress / (double) Files.size(filePathHouses) * 100));
+                    taskLifeCycle.publish(percentValue);
+                    if (houses.size() == batchSize) {
+                        CommitContext commitContext = new CommitContext(houses);
+                        dataManager.commit(commitContext);
+                        log.debug(MessageFormat.format("{0} new Houses were processed (class = {1}), reached {2}% of file",
+                                houses.size(),
+                                clazz.getSimpleName(),
+                                percentValue));
+                        houses.clear();
+                    }
+                }
+                sendToLog(MessageFormat.format("Finished Creating objects of class {0}", clazz.getSimpleName()));
+
             }
 
             void loadParents() throws JAXBException, IOException {
@@ -233,14 +243,52 @@ public class Fiasclientv2 extends AbstractWindow {
                 munParents = new HashMap<>();
                 admParents = new HashMap<>();
 
-                String path = configuration.getConfig(FiasServiceConfig.class).getPath();
-                xmlDirectory = Paths.get(path);
                 XMLLoader loader = new XMLLoader(xmlDirectory);
                 loader.loadReferenceTable(FiasFile.ADM_HIERARCHY, dev.smartdata.gar.ADMHIERARCHY.ITEMS.class).getITEM().forEach(p -> {
                         admParents.put(p.getOBJECTID(), p.getPARENTOBJID());
                 });
                 loader.loadReferenceTable(FiasFile.MUN_HIERARCHY, dev.smartdata.gar.MUNHIERARCHY.ITEMS.class).getITEM().forEach(p -> {
                         munParents.put(p.getOBJECTID(), p.getPARENTOBJID());
+                });
+            }
+
+            void loadParameters() throws JAXBException, IOException {
+                if(parameters!=null)
+                    return;
+                parameters = new HashMap<>();
+                XMLLoader loader = new XMLLoader(xmlDirectory);
+                loader.loadReferenceTable(FiasFile.HOUSES_PARAMS, PARAMS.class).getPARAM().forEach(param -> {
+                    long id = param.getOBJECTID();
+                    if (!parameters.containsKey(id))
+                        parameters.put(id, new HashMap<>());
+
+                    long typeId = param.getTYPEID().longValue();
+                    switch ((int)typeId) {
+                        case 1:
+                            parameters.get(id).put("ifnsfl", param.getVALUE());
+                            break;
+                        case 2:
+                            parameters.get(id).put("ifnsul", param.getVALUE());
+                            break;
+                        case 3:
+                            parameters.get(id).put("terrifnsfl", param.getVALUE());
+                            break;
+                        case 4:
+                            parameters.get(id).put("terrifnsul", param.getVALUE());
+                            break;
+                        case 5:
+                            parameters.get(id).put("postalcode", param.getVALUE());
+                            break;
+                        case 6:
+                            parameters.get(id).put("okato", param.getVALUE());
+                            break;
+                        case 7:
+                            parameters.get(id).put("oktmo", param.getVALUE());
+                            break;
+                        case 8:
+                            parameters.get(id).put("cadastralNumber", param.getVALUE());
+                            break;
+                    }
                 });
             }
 
@@ -358,7 +406,7 @@ public class Fiasclientv2 extends AbstractWindow {
 
     private House getHouseEntity(HOUSES.HOUSE fiasHouse) {
         final UUID entityId;
-        final String houseguid = "";//TODO fiasHouse.getHOUSEGUID();
+        final String houseguid = fiasHouse.getOBJECTGUID();
         try {
             entityId = UUID.fromString(houseguid);
         } catch (IllegalArgumentException e) {
@@ -379,52 +427,43 @@ public class Fiasclientv2 extends AbstractWindow {
     }
 
     private House processHouseEntity(HOUSES.HOUSE fiasHouse, House entity) {
-        //TODO
-        return null;
-//        final String aoguid = fiasHouse.getAOGUID();
-//        if (Strings.isNullOrEmpty(aoguid)) {
-//            log.warn("Missing parent ID (AOGUID) for element {} with id: {}",
-//                    Houses.House.class.getSimpleName(), fiasHouse.getHOUSEGUID());
-//            return null;
-//        }
-//        final UUID parentId;
-//        try {
-//            parentId = UUID.fromString(aoguid);
-//        } catch (IllegalArgumentException e) {
-//            log.warn("Wrong parent ID format (AOGUID) for element {} with id: {}",
-//                    Houses.House.class.getSimpleName(), fiasHouse.getHOUSEGUID());
-//            return null;
-//        }
-//
-//        final FiasEntity parentEntity = dataManager.load(FiasEntity.class)
-//                .id(parentId)
-//                .optional()
-//                .orElse(null);
-//        if (parentEntity != null) {
-//            House house = entity;
-//            house.setValue("parent", parentEntity, true);
-//
-//            house.setValue("postalcode", fiasHouse.getPOSTALCODE(), true);
-//            house.setValue("ifnsfl", fiasHouse.getIFNSFL(), true);
-//            house.setValue("terrifnsfl", fiasHouse.getTERRIFNSFL(), true);
-//            house.setValue("ifnsul", fiasHouse.getIFNSUL(), true);
-//            house.setValue("terrifnsul", fiasHouse.getTERRIFNSUL(), true);
-//            house.setValue("okato", fiasHouse.getOKATO(), true);
-//            house.setValue("oktmo", fiasHouse.getOKTMO(), true);
-//            house.setValue("housenum", fiasHouse.getHOUSENUM(), true);
-//            house.setValue("eststatus", fiasHouse.getESTSTATUS().intValue(), true);
-//            house.setValue("buildnum", fiasHouse.getBUILDNUM(), true);
-//            house.setValue("strstatus", fiasHouse.getSTRSTATUS().intValue(), true);
-//            house.setValue("strucnum", fiasHouse.getSTRUCNUM(), true);
-//            house.setValue("startdate", fiasHouse.getSTARTDATE().toGregorianCalendar().getTime(), true);
-//            house.setValue("enddate", fiasHouse.getENDDATE().toGregorianCalendar().getTime(), true);
-//
-//            return house;
-//        } else {
-//            log.warn("Was unable to find parent (id={}) for element {} with id={}"
-//                    , fiasHouse.getAOGUID(), Houses.House.class.getSimpleName(), fiasHouse.getHOUSEGUID());
-//            return null;
-//        }
+        long parentIdAdm = 0;
+        long parentIdMun = 0;
+        try {
+            parentIdAdm = admParents.getOrDefault(fiasHouse.getOBJECTID(), 0l);
+            parentIdMun = admParents.getOrDefault(fiasHouse.getOBJECTID(), 0l);
+        } catch (IllegalArgumentException e) {
+            log.warn("Wrong parent ID format (AOGUID) for element {} with id: {}",
+                    HOUSES.HOUSE.class.getSimpleName(), fiasHouse.getOBJECTGUID());
+            return null;
+        }
+
+        final FiasEntity parentEntityAdm = dataManager.load(FiasEntity.class)
+                .query("e.garId=?1", parentIdAdm)
+                .optional()
+                .orElse(null);
+        final FiasEntity parentEntityMun = dataManager.load(FiasEntity.class)
+                .query("e.garId=?1", parentIdMun)
+                .optional()
+                .orElse(null);
+
+        House house = entity;
+        house.setValue("parentAdm", parentEntityAdm, true);
+        house.setValue("parentMun", parentEntityMun, true);
+
+        if(parameters.containsKey(fiasHouse.getOBJECTID())) {
+            Map values = parameters.get(fiasHouse.getOBJECTID());
+            values.forEach((k,v) -> house.setValue(k.toString() ,v, true));
+        }
+        house.setValue("housenum", fiasHouse.getHOUSENUM(), true);
+        house.setValue("eststatus", fiasHouse.getISACTIVE().intValue(), true);
+        house.setValue("buildnum", fiasHouse.getADDNUM1(), true);
+//        house.setValue("strstatus", fiasHouse.getSTRSTATUS().intValue(), true);
+        house.setValue("strucnum", fiasHouse.getADDNUM2(), true);
+        house.setValue("startdate", fiasHouse.getSTARTDATE().toGregorianCalendar().getTime(), true);
+        house.setValue("enddate", fiasHouse.getENDDATE().toGregorianCalendar().getTime(), true);
+
+        return house;
     }
 
 
@@ -513,7 +552,7 @@ public class Fiasclientv2 extends AbstractWindow {
         if (!PersistenceHelper.isLoaded(house, "parent"))
             house = dataManager.reload(house, "parent");
 
-        final FiasEntity fiasEntity = house.getParent();
+        final FiasEntity fiasEntity = house.getParentAdm();
 
         final HashMap<Class, FiasEntity> entityMap = new HashMap<>();
         findFiasEntityParent(fiasEntity, entityMap);
@@ -582,8 +621,8 @@ public class Fiasclientv2 extends AbstractWindow {
 
     //слушатель на изменение региона
     private void setupChangeRegionLkf() {
-        regionField.addValueChangeListener(e ->
-                cityField.setOptionsMap(getMapOfCitiesFromFias(regionField.getValue().toString())));
+//        regionField.addValueChangeListener(e ->
+//                cityField.setOptionsMap(getMapOfCitiesFromFias(regionField.getValue().toString())));
     }
 
     //обновляем доступность кнопок

@@ -1,9 +1,12 @@
 package com.groupstp.fias.entity;
 
 import com.haulmont.cuba.core.entity.StandardEntity;
+import com.haulmont.cuba.core.entity.annotation.Lookup;
+import com.haulmont.cuba.core.entity.annotation.LookupType;
+import com.haulmont.cuba.core.entity.annotation.OnDeleteInverse;
+import com.haulmont.cuba.core.global.DeletePolicy;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Table(name = "FIAS_HOUSE")
@@ -58,10 +61,25 @@ public class House extends StandardEntity {
     @Column(name = "ENDDATE")
     protected Date enddate;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_ID")
-    protected FiasEntity parent;
+    @Lookup(type = LookupType.SCREEN, actions = {"lookup", "open", "clear"})
+    @OnDeleteInverse(DeletePolicy.CASCADE)
+    protected FiasEntity parentAdm;
+
+    @Lookup(type = LookupType.SCREEN, actions = {})
+    @OnDeleteInverse(DeletePolicy.CASCADE)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_MUN_ID")
+    protected FiasEntity parentMun;
+
+    public FiasEntity getParentMun() {
+        return parentMun;
+    }
+
+    public void setParentMun(FiasEntity parentMun) {
+        this.parentMun = parentMun;
+    }
 
     public String getCadastralNumber() {
         return cadastralNumber;
@@ -170,12 +188,12 @@ public class House extends StandardEntity {
         return strstatus;
     }
 
-    public void setParent(FiasEntity parent) {
-        this.parent = parent;
+    public void setParentAdm(FiasEntity parentAdm) {
+        this.parentAdm = parentAdm;
     }
 
-    public FiasEntity getParent() {
-        return parent;
+    public FiasEntity getParentAdm() {
+        return parentAdm;
     }
 
 

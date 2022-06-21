@@ -59,7 +59,8 @@
     <view class="com.groupstp.fias.entity.House"
           extends="_local"
           name="parent">
-        <property name="parent"
+        <property name="parentAdm"
                   view="_minimal"/>
+        <property name="parentMun" view="_minimal"/>
     </view>
 </views>

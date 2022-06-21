@@ -37,10 +37,11 @@
                 <column id="strstatus"/>
                 <column id="startdate"/>
                 <column id="enddate"/>
-                <column id="parent"
+                <column id="parentAdm"
                         link="true"
                         linkScreen="fias$FiasEntity.edit"/>
                 <column id="postalcode"/>
+                <column id="cadastralNumber"/>
                 <column id="ifnsfl"/>
                 <column id="terrifnsul"/>
                 <column id="ifnsul"/>

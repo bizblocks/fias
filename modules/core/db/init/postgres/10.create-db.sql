@@ -41,6 +41,7 @@ create table FIAS_HOUSE (
     DELETED_BY varchar(50),
     --
     POSTALCODE varchar(6),
+    CADASTRAL_NUMBER varchar(255),
     IFNSFL varchar(4),
     TERRIFNSFL varchar(4),
     IFNSUL varchar(4),
@@ -54,7 +55,8 @@ create table FIAS_HOUSE (
     STRSTATUS integer,
     STARTDATE timestamp,
     ENDDATE date,
-    PARENT_ID uuid not null,
+    PARENT_ID uuid,
+    PARENT_MUN_ID uuid,
     --
     primary key (ID)
 )^

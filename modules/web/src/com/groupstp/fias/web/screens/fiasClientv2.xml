@@ -24,12 +24,14 @@
                   caption="msg://streetCheckField"/>
         <checkBox id="houseCheckField"
                   caption="msg://houseCheckField"/>
+<!--
         <lookupField id="regionField"
                      caption="msg://regionToLoadField"
                      width="400px"/>
         <lookupField id="cityField"
                      caption="msg://cityToLoadField"
                      width="400px"/>
+-->
         <vbox id="vbox"
               spacing="true"
               width="AUTO">

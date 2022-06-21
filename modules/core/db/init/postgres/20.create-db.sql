@@ -7,6 +7,8 @@ create index IDX_FIAS_ENTITY_PARENT_MUN on FIAS_FIAS_ENTITY (PARENT_MUN_ID)^
 create index IDX_FIAS_FIAS_ENTITY on FIAS_FIAS_ENTITY (CODE)^
 -- end FIAS_FIAS_ENTITY
 -- begin FIAS_HOUSE
-alter table FIAS_HOUSE add constraint FK_FIAS_HOUSE_ON_PARENT foreign key (PARENT_ID) references FIAS_FIAS_ENTITY(ID)^
-create index IDX_FIAS_HOUSE_ON_PARENT on FIAS_HOUSE (PARENT_ID)^
+alter table FIAS_HOUSE add constraint FK_FIAS_HOUSE_PARENT foreign key (PARENT_ID) references FIAS_FIAS_ENTITY(ID)^
+alter table FIAS_HOUSE add constraint FK_FIAS_HOUSE_PARENT_MUN foreign key (PARENT_MUN_ID) references FIAS_FIAS_ENTITY(ID)^
+create index IDX_FIAS_HOUSE_PARENT on FIAS_HOUSE (PARENT_ID)^
+create index IDX_FIAS_HOUSE_PARENT_MUN on FIAS_HOUSE (PARENT_MUN_ID)^
 -- end FIAS_HOUSE
