@@ -19,15 +19,40 @@ public interface FiasServiceConfig extends Config {
     @DefaultInt(1000)
     int getBatchSize();
 
-    @Property("fias.fias-service.import-process.progressRegions")
+    @Property("fias.fias-service.import-process.progressRegion")
     @DefaultLong(0)
-    long getProgressRegions();
-    void setProgressRegions(long progress);
+    long getProgressRegion();
+    void setProgressRegion(long progress);
 
-    @Property("fias.fias-service.import-process.progressAutonomies")
+    @Property("fias.fias-service.import-process.progressAdmRegion")
     @DefaultLong(0)
-    long getProgressAutonomies();
-    void setProgressAutonomies(long progress);
+    long getProgressAdmRegion();
+    void setProgressAdmRegion(long progress);
+
+    @Property("fias.fias-service.import-process.progressMunRegion")
+    @DefaultLong(0)
+    long getProgressMunRegion();
+    void setProgressMunRegion(long progress);
+
+    @Property("fias.fias-service.import-process.progressSettlement")
+    @DefaultLong(0)
+    long getProgressSettlement();
+    void setProgressSettlement(long progress);
+
+    @Property("fias.fias-service.import-process.progressLocality")
+    @DefaultLong(0)
+    long getProgressLocality();
+    void setProgressLocality(long progress);
+
+    @Property("fias.fias-service.import-process.progressPlanningStructure")
+    @DefaultLong(0)
+    long getProgressPlanningStructure();
+    void setProgressPlanningStructure(long progress);
+
+    @Property("fias.fias-service.import-process.progressAutonomy")
+    @DefaultLong(0)
+    long getProgressAutonomy();
+    void setProgressAutonomy(long progress);
 
     @Property("fias.fias-service.import-process.progressArea")
     @DefaultLong(0)
@@ -54,8 +79,8 @@ public interface FiasServiceConfig extends Config {
     long getProgressStreet();
     void setProgressStreet(long progress);
 
-    @Property("fias.fias-service.import-process.progressHouses")
+    @Property("fias.fias-service.import-process.progressHouse")
     @DefaultLong(0)
-    long getProgressHouses();
-    void setProgressHouses(long progress);
+    long getProgressHouse();
+    void setProgressHouse(long progress);
 }

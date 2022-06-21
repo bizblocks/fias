@@ -8,12 +8,15 @@ import javax.inject.Named;
 import java.util.Map;
 
 public class FiasEntityEdit extends AbstractEditor<FiasEntity> {
-    @Named("fieldGroup.parent")
-    private PickerField parentField;
+    @Named("fieldGroup.parentAdm")
+    private PickerField<FiasEntity> parentAdmField;
+    @Named("fieldGroup.parentMun")
+    private PickerField<FiasEntity> parentMunField;
 
     @Override
     public void init(Map<String, Object> params) {
         super.init(params);
-        parentField.addOpenAction().setEditScreen("fias$FiasEntity.edit");
+        parentAdmField.addOpenAction().setEditScreen("fias$FiasEntity.edit");
+        parentMunField.addOpenAction().setEditScreen("fias$FiasEntity.edit");
     }
 }

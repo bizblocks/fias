@@ -6,12 +6,27 @@
         lookupComponent="fiasEntitiesTable"
         messagesPack="com.groupstp.fias.web.fiasentity">
     <dsContext>
-        <hierarchicalDatasource id="fiasEntitiesDs"
+        <hierarchicalDatasource id="fiasEntitiesAdmDs"
                                 class="com.groupstp.fias.entity.FiasEntity"
-                                hierarchyProperty="parent"
+                                hierarchyProperty="parentAdm"
                                 view="parent">
             <query>
-                <![CDATA[select e from fias$FiasEntity e]]>
+                <![CDATA[select e from fias$FiasEntity e where e.parentAdm is not null or e.parentMun is null]]>
+            </query>
+        </hierarchicalDatasource>
+        <hierarchicalDatasource id="fiasEntitiesMunDs"
+                                class="com.groupstp.fias.entity.FiasEntity"
+                                hierarchyProperty="parentMun"
+                                view="parent">
+            <query>
+                <![CDATA[select e from fias$FiasEntity e where e.parentMun is not null or e.parentAdm is null]]>
+            </query>
+        </hierarchicalDatasource>
+        <hierarchicalDatasource id="fiasEntitiesDs"
+                                class="com.groupstp.fias.entity.FiasEntity"
+                                view="parent">
+            <query>
+                <![CDATA[select e from fias$FiasEntity e ]]>
             </query>
         </hierarchicalDatasource>
     </dsContext>
@@ -21,13 +36,14 @@
             spacing="true">
         <filter id="filter"
                 applyTo="fiasEntitiesTable"
-                datasource="fiasEntitiesDs">
+                datasource="fiasEntitiesAdmDs">
             <properties include=".*"/>
         </filter>
+        <radioButtonGroup id="hierarchySwitch" caption="msg://parentSwitch.caption" orientation="horizontal"/>
         <treeTable id="fiasEntitiesTable"
                    multiselect="true"
                    presentations="true"
-                   width="100%">
+                   width="100%" hierarchyProperty="parentAdm">
             <actions>
                 <action id="create"/>
                 <action id="edit"/>
@@ -35,21 +51,7 @@
                 <action id="excel"/>
                 <action id="refresh"/>
             </actions>
-            <columns>
-                <column id="shortname"/>
-                <column id="name"/>
-                <column id="postalCode"/>
-                <column id="offname"/>
-                <column id="formalname"/>
-                <column id="possibleNames"/>
-                <column id="code"/>
-                <column id="updatedate"/>
-                <column id="actstatus"/>
-                <column id="operstatus"/>
-                <column id="startdate"/>
-                <column id="enddate"/>
-            </columns>
-            <rows datasource="fiasEntitiesDs"/>
+            <rows datasource="fiasEntitiesAdmDs"/>
             <rowsCount/>
             <buttonsPanel id="buttonsPanel"
                           alwaysVisible="true">
@@ -64,6 +66,22 @@
                 <button id="refreshBtn"
                         action="fiasEntitiesTable.refresh"/>
             </buttonsPanel>
+            <columns>
+                <column id="name"/>
+                <column id="parentAdm"/>
+                <column id="postalCode"/>
+                <column id="offname"/>
+                <column id="formalname"/>
+                <column id="possibleNames"/>
+                <column id="garId"/>
+                <column id="shortname"/>
+                <column id="updatedate"/>
+                <column id="actstatus"/>
+                <column id="operstatus"/>
+                <column id="startdate"/>
+                <column id="enddate"/>
+                <column id="prevID"/>
+            </columns>
         </treeTable>
     </layout>
 </window>

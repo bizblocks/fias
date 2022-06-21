@@ -12,5 +12,10 @@
         <class>com.groupstp.fias.entity.City</class>
         <class>com.groupstp.fias.entity.Area</class>
         <class>com.groupstp.fias.entity.House</class>
+        <class>com.groupstp.fias.entity.AdmRegion</class>
+        <class>com.groupstp.fias.entity.MunRegion</class>
+        <class>com.groupstp.fias.entity.Settlement</class>
+        <class>com.groupstp.fias.entity.Locality</class>
+        <class>com.groupstp.fias.entity.PlanningStucture</class>
     </persistence-unit>
 </persistence>

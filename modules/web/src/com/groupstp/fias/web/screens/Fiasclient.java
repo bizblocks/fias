@@ -48,11 +48,11 @@ public class Fiasclient extends AbstractWindow {
     public void onBtnClick() {
         HashMap<Object, Object> levelMap = new HashMap<>();
         levelMap.put(AddressLevel.REGION, regionCheckField.getValue());
-        levelMap.put(AddressLevel.AUTONOMY, autonomyCheckField.getValue());
-        levelMap.put(AddressLevel.AREA, areaCheckField.getValue());
+//        levelMap.put(AddressLevel.AUTONOMY, autonomyCheckField.getValue());
+//        levelMap.put(AddressLevel.AREA, areaCheckField.getValue());
         levelMap.put(AddressLevel.CITY, cityCheckField.getValue());
-        levelMap.put(AddressLevel.COMMUNITY, communityCheckField.getValue());
-        levelMap.put(AddressLevel.LOCATION, locationCheckField.getValue());
+//        levelMap.put(AddressLevel.COMMUNITY, communityCheckField.getValue());
+//        levelMap.put(AddressLevel.LOCATION, locationCheckField.getValue());
         levelMap.put(AddressLevel.STREET, streetCheckField.getValue());
         levelMap.put("needLoadHouses", houseCheckField.getValue());
         if (regionField.getValue() != null)

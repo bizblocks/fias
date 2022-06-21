@@ -1,6 +1,6 @@
 
 buildscript {
-    ext.cubaVersion = '6.10.8'
+    ext.cubaVersion = '7.2.19'
     repositories {
         
         mavenLocal()
@@ -14,6 +14,10 @@ buildscript {
         maven {
             url = myMavenRepoReadUrl
         }
+        flatDir {
+            dirs "${project.rootDir}/lib/"
+        }
+
     }
     dependencies {
         classpath "com.haulmont.gradle:cuba-plugin:$cubaVersion"
@@ -29,23 +33,25 @@ def webModule = project(":${modulePrefix}-web")
 def servletApi = 'javax.servlet:javax.servlet-api:3.1.0'
 
 
-apply(plugin: 'idea')
 apply(plugin: 'cuba')
 
 cuba {
     artifact {
         group = 'com.groupstp.fias'
-        version = "0.4.4"
+        version = '0.5.0'
         isSnapshot = false
-    }
-    tomcat {
-        dir = "$project.rootDir/deploy/tomcat"
     }
     ide {
         vcs = 'Git'
     }
     uploadRepository {
         url = myMavenRepoWriteUrl
+    }
+    tomcat {
+        port = '9090'
+        ajpPort = '9009'
+        shutdownPort = '9005'
+        debugPort = '9797'
     }
 }
 
@@ -54,16 +60,18 @@ dependencies {
 
 }
 
-def postgres = 'org.postgresql:postgresql:9.4.1212'
+def postgres = 'org.postgresql:postgresql:42.2.9'
 
 configure([globalModule, coreModule, webModule]) {
     apply(plugin: 'java')
     apply(plugin: 'maven')
-    apply(plugin: 'idea')
     apply(plugin: 'cuba')
 
     dependencies {
         testCompile('junit:junit:4.12')
+        testCompile('org.junit.jupiter:junit-jupiter-api:5.5.2')
+        testCompile('org.junit.jupiter:junit-jupiter-engine:5.5.2')
+        testCompile('org.junit.vintage:junit-vintage-engine:5.5.2')
     }
 
     task sourceJar(type: Jar) {
@@ -74,12 +82,21 @@ configure([globalModule, coreModule, webModule]) {
     artifacts {
         archives sourceJar
     }
+
+    test {
+        useJUnitPlatform()
+    }
 }
 
 configure(globalModule) {
 
     dependencies {
-        compile('org.meridor:fias-client:1.1-SNAPSHOT')
+        //compile('org.meridor:fias-client:1.1-SNAPSHOT')
+        compile(name: 'gar-client')
+        if (!JavaVersion.current().isJava8()) {
+            runtime('javax.xml.bind:jaxb-api:2.3.1')
+            runtime('org.glassfish.jaxb:jaxb-runtime:2.3.1')
+        }
     }
     entitiesEnhancing {
         main {
@@ -106,21 +123,14 @@ configure(coreModule) {
 
     dependencies {
         compile(globalModule)
-        provided(servletApi)
+        compileOnly(servletApi)
         jdbc(postgres)
         testRuntime(postgres)
 
     }
 
-    task cleanConf(description: 'Cleans up conf directory') {
-        doLast {
-            def dir = new File(cuba.tomcat.dir, "/conf/${modulePrefix}-core")
-            if (dir.isDirectory()) {
-                ant.delete(includeemptydirs: true) {
-                    fileset(dir: dir, includes: '**/*', excludes: 'local.app.properties')
-                }
-            }
-        }
+    task cleanConf(description: 'Cleans up conf directory', type: Delete) {
+        delete "$cuba.appHome/${modulePrefix}-core/conf"
     }
 
     task deploy(dependsOn: [assemble, cleanConf], type: CubaDeployment) {
@@ -151,11 +161,11 @@ configure(webModule) {
     }
 
     dependencies {
-        provided(servletApi)
+        compileOnly(servletApi)
         compile(globalModule)
 
     }
-    
+
     task webArchive(type: Zip) {
         from file("$buildDir/web")
         from file('web')
@@ -169,7 +179,7 @@ configure(webModule) {
     task deployConf(type: Copy) {
         from file('src')
         include "com/groupstp/fias/**"
-        into "$cuba.tomcat.dir/conf/${modulePrefix}"
+        into "$cuba.appHome/${modulePrefix}/conf"
     }
 
     task clearMessagesCache(type: CubaClearMessagesCache) {
@@ -177,15 +187,8 @@ configure(webModule) {
     }
     deployConf.dependsOn clearMessagesCache
 
-    task cleanConf(description: 'Cleans up conf directory') {
-        doLast {
-            def dir = new File(cuba.tomcat.dir, "/conf/${modulePrefix}")
-            if (dir.isDirectory()) {
-                ant.delete(includeemptydirs: true) {
-                    fileset(dir: dir, includes: '**/*', excludes: 'local.app.properties')
-                }
-            }
-        }
+    task cleanConf(description: 'Cleans up conf directory', type: Delete) {
+        delete "$cuba.appHome/${modulePrefix}/conf"
     }
 
     task deploy(dependsOn: [assemble, cleanConf], type: CubaDeployment) {
@@ -211,10 +214,7 @@ task restart(dependsOn: ['stop', ":${modulePrefix}-core:deploy", ":${modulePrefi
                 socket(server: 'localhost', port: '8787')
             }
         }
-        start.execute()
     }
 }
+restart.finalizedBy start
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.3.1'
-}

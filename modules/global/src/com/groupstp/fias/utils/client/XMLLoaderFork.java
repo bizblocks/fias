@@ -1,7 +1,7 @@
 package com.groupstp.fias.utils.client;
 
 import com.haulmont.cuba.core.global.Configuration;
-import org.meridor.fias.AddressObjects;
+import dev.smartdata.gar.ADDRESSOBJECTS;
 import org.meridor.fias.loader.PartialUnmarshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +64,7 @@ public class XMLLoaderFork {
     }
 
     @Deprecated
-    public List<AddressObjects.Object> loadRaw(Predicate<AddressObjects.Object> predicate) {
+    public List<ADDRESSOBJECTS.OBJECT> loadRaw(Predicate<ADDRESSOBJECTS.OBJECT> predicate) {
         if (predicate == null) {
             return Collections.emptyList();
         }
@@ -73,10 +73,10 @@ public class XMLLoaderFork {
             //InputStream inputStream = new BufferedInputStream(new FileInputStream(filePath.toFile()));
             ProgressCounterFilterInputStream inputStream = new ProgressCounterFilterInputStream(new BufferedInputStream(new FileInputStream(filePath.toFile())));
             log.info("Searching objects in file {}", filePath);
-            try (PartialUnmarshallerFork<AddressObjects.Object> partialUnmarshaller = new PartialUnmarshallerFork<>(inputStream, AddressObjects.Object.class)) {
-                List<AddressObjects.Object> results = new ArrayList<>();
+            try (PartialUnmarshallerFork<ADDRESSOBJECTS.OBJECT> partialUnmarshaller = new PartialUnmarshallerFork<>(inputStream, ADDRESSOBJECTS.OBJECT.class)) {
+                List<ADDRESSOBJECTS.OBJECT> results = new ArrayList<>();
                 while (partialUnmarshaller.hasNext()) {
-                    AddressObjects.Object addressObject = partialUnmarshaller.next();
+                    ADDRESSOBJECTS.OBJECT addressObject = partialUnmarshaller.next();
                     if (predicate.test(addressObject)) {
                         results.add(addressObject);
                         log.info("Founded {} object(s) in file, readed {} % of file",
@@ -93,12 +93,12 @@ public class XMLLoaderFork {
     }
 
     @Nullable
-    public AddressObjectFork loadObject(Predicate<AddressObjects.Object> predicate, Path filePath, long offset) {
+    public AddressObjectFork loadObject(Predicate<ADDRESSOBJECTS.OBJECT> predicate, Path filePath, long offset) {
         try {
             ProgressCounterFilterInputStream inputStream = new ProgressCounterFilterInputStream(new BufferedInputStream(new FileInputStream(filePath.toFile())));
-            try (PartialUnmarshallerFork<AddressObjects.Object> partialUnmarshaller = new PartialUnmarshallerFork<>(inputStream, AddressObjects.Object.class, offset)) {
+            try (PartialUnmarshallerFork<ADDRESSOBJECTS.OBJECT> partialUnmarshaller = new PartialUnmarshallerFork<>(inputStream, ADDRESSOBJECTS.OBJECT.class, offset)) {
                 while (partialUnmarshaller.hasNext()) {
-                    AddressObjects.Object addressObject = partialUnmarshaller.next();
+                    ADDRESSOBJECTS.OBJECT addressObject = partialUnmarshaller.next();
                     if (predicate.test(addressObject)) {
                         return new AddressObjectFork(addressObject, partialUnmarshaller.getInputStream().getProgress());
                     }
@@ -111,11 +111,11 @@ public class XMLLoaderFork {
     }
 
     @Nullable
-    public AddressObjectFork loadObject(Predicate<AddressObjects.Object> predicate, ProgressCounterFilterInputStream inputStream, long offset) {
+    public AddressObjectFork loadObject(Predicate<ADDRESSOBJECTS.OBJECT> predicate, ProgressCounterFilterInputStream inputStream, long offset) {
         try {
-            try (PartialUnmarshallerFork<AddressObjects.Object> partialUnmarshaller = new PartialUnmarshallerFork<>(inputStream, AddressObjects.Object.class, offset)) {
+            try (PartialUnmarshallerFork<ADDRESSOBJECTS.OBJECT> partialUnmarshaller = new PartialUnmarshallerFork<>(inputStream, ADDRESSOBJECTS.OBJECT.class, offset)) {
                 while (partialUnmarshaller.hasNext()) {
-                    AddressObjects.Object addressObject = partialUnmarshaller.next();
+                    ADDRESSOBJECTS.OBJECT addressObject = partialUnmarshaller.next();
                     if (predicate.test(addressObject)) {
                         return new AddressObjectFork(addressObject, partialUnmarshaller.getInputStream().getProgress());
                     }
@@ -128,14 +128,14 @@ public class XMLLoaderFork {
     }
 
     @Nullable
-    public List<AddressObjectFork> loadObjects(Predicate<AddressObjects.Object> predicate, Path filePath, long offset, int batchSize) throws FileNotFoundException {
+    public List<AddressObjectFork> loadObjects(Predicate<ADDRESSOBJECTS.OBJECT> predicate, Path filePath, long offset, int batchSize) throws FileNotFoundException {
         List<AddressObjectFork> results = new ArrayList<>();
         ProgressCounterFilterInputStream inputStream = new ProgressCounterFilterInputStream(new BufferedInputStream(new FileInputStream(filePath.toFile())));
         log.info("Searching objects in file {}", filePath);
         try {
-            try (PartialUnmarshallerFork<AddressObjects.Object> partialUnmarshaller = new PartialUnmarshallerFork<>(inputStream, AddressObjects.Object.class, offset)) {
+            try (PartialUnmarshallerFork<ADDRESSOBJECTS.OBJECT> partialUnmarshaller = new PartialUnmarshallerFork<>(inputStream, ADDRESSOBJECTS.OBJECT.class, offset)) {
                 while (partialUnmarshaller.hasNext()) {
-                    AddressObjects.Object addressObject = partialUnmarshaller.next();
+                    ADDRESSOBJECTS.OBJECT addressObject = partialUnmarshaller.next();
                     if (predicate.test(addressObject)) {
                         AddressObjectFork addressObjectFork = new AddressObjectFork(addressObject, partialUnmarshaller.getInputStream().getProgress());
                         results.add(addressObjectFork);

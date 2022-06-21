@@ -14,6 +14,9 @@ public class House extends StandardEntity {
     @Column(name = "POSTALCODE", length = 6)
     protected String postalcode;
 
+    @Column(name = "CADASTRAL_NUMBER")
+    protected String cadastralNumber;
+
     @Column(name = "IFNSFL", length = 4)
     protected String ifnsfl;
 
@@ -59,6 +62,14 @@ public class House extends StandardEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "PARENT_ID")
     protected FiasEntity parent;
+
+    public String getCadastralNumber() {
+        return cadastralNumber;
+    }
+
+    public void setCadastralNumber(String cadastralNumber) {
+        this.cadastralNumber = cadastralNumber;
+    }
 
     public String getTerrifnsfl() {
         return terrifnsfl;

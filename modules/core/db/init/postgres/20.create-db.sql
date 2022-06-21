@@ -1,6 +1,10 @@
 -- begin FIAS_FIAS_ENTITY
-alter table FIAS_FIAS_ENTITY add constraint FK_FIAS_ENTITY_ON_PARENT foreign key (PARENT_ID) references FIAS_FIAS_ENTITY(ID)^
-create index IDX_FIAS_ENTITY_ON_PARENT on FIAS_FIAS_ENTITY (PARENT_ID)^
+alter table FIAS_FIAS_ENTITY add constraint FK_FIAS_ENTITY_PARENT foreign key (PARENT_ID) references FIAS_FIAS_ENTITY(ID)^
+alter table FIAS_FIAS_ENTITY add constraint FK_FIAS_ENTITY_PARENT_MUN foreign key (PARENT_MUN_ID) references FIAS_FIAS_ENTITY(ID)^
+create unique index IDX_FIAS_ENTITY_UK_CODE on FIAS_FIAS_ENTITY (CODE) where DELETE_TS is null ^
+create index IDX_FIAS_ENTITY_PARENT on FIAS_FIAS_ENTITY (PARENT_ID)^
+create index IDX_FIAS_ENTITY_PARENT_MUN on FIAS_FIAS_ENTITY (PARENT_MUN_ID)^
+create index IDX_FIAS_FIAS_ENTITY on FIAS_FIAS_ENTITY (CODE)^
 -- end FIAS_FIAS_ENTITY
 -- begin FIAS_HOUSE
 alter table FIAS_HOUSE add constraint FK_FIAS_HOUSE_ON_PARENT foreign key (PARENT_ID) references FIAS_FIAS_ENTITY(ID)^

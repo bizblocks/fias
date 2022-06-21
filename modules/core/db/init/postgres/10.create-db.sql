@@ -8,21 +8,23 @@ create table FIAS_FIAS_ENTITY (
     UPDATED_BY varchar(50),
     DELETE_TS timestamp,
     DELETED_BY varchar(50),
-    DTYPE varchar(100),
+    DTYPE varchar(31),
     --
     NAME varchar(255),
     PARENT_ID uuid,
+    PARENT_MUN_ID uuid,
     POSTAL_CODE varchar(6),
     OFFNAME varchar(255),
     FORMALNAME varchar(255),
     POSSIBLE_NAMES text,
-    CODE varchar(255),
-    SHORTNAME varchar(10),
+    CODE bigint,
+    SHORTNAME varchar(50),
     UPDATEDATE date,
     ACTSTATUS integer,
     OPERSTATUS integer,
     STARTDATE date,
     ENDDATE date,
+    PREV_ID bigint,
     --
     primary key (ID)
 )^

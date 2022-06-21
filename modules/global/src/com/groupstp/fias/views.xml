@@ -3,50 +3,58 @@
     <view class="com.groupstp.fias.entity.FiasEntity"
           extends="_local"
           name="parent">
-        <property name="parent"
+        <property name="parentAdm"
                   view="_minimal"/>
+        <property name="parentMun" view="_minimal"/>
     </view>
     <view class="com.groupstp.fias.entity.Autonomy"
           extends="_local"
           name="parent">
-        <property name="parent"
+        <property name="parentAdm"
                   view="_minimal"/>
+        <property name="parentMun" view="_minimal"/>
     </view>
     <view class="com.groupstp.fias.entity.Area"
           extends="_local"
           name="parent">
-        <property name="parent"
+        <property name="parentAdm"
                   view="_minimal"/>
+        <property name="parentMun" view="_minimal"/>
     </view>
     <view class="com.groupstp.fias.entity.City"
           extends="_local"
           name="parent">
-        <property name="parent"
+        <property name="parentAdm"
                   view="_minimal"/>
+        <property name="parentMun" view="_minimal"/>
     </view>
     <view class="com.groupstp.fias.entity.Community"
           extends="_local"
           name="parent">
-        <property name="parent"
+        <property name="parentAdm"
                   view="_minimal"/>
+        <property name="parentMun" view="_minimal"/>
     </view>
     <view class="com.groupstp.fias.entity.Location"
           extends="_local"
           name="parent">
-        <property name="parent"
+        <property name="parentAdm"
                   view="_minimal"/>
+        <property name="parentMun" view="_minimal"/>
     </view>
     <view class="com.groupstp.fias.entity.Region"
           extends="_local"
           name="parent">
-        <property name="parent"
+        <property name="parentAdm"
                   view="_minimal"/>
+        <property name="parentMun" view="_minimal"/>
     </view>
     <view class="com.groupstp.fias.entity.Street"
           extends="_local"
           name="parent">
-        <property name="parent"
+        <property name="parentAdm"
                   view="_minimal"/>
+        <property name="parentMun" view="_minimal"/>
     </view>
     <view class="com.groupstp.fias.entity.House"
           extends="_local"

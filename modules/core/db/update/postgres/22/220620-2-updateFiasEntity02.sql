@@ -1,0 +1,1 @@
+create index IDX_FIAS_FIAS_ENTITY on FIAS_FIAS_ENTITY (CODE);

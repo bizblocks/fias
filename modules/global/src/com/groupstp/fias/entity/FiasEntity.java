@@ -4,12 +4,18 @@ import com.groupstp.fias.entity.enums.FiasEntityOperationStatus;
 import com.groupstp.fias.entity.enums.FiasEntityStatus;
 import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
+import com.haulmont.cuba.core.entity.annotation.Lookup;
+import com.haulmont.cuba.core.entity.annotation.LookupType;
+import com.haulmont.cuba.core.entity.annotation.OnDeleteInverse;
+import com.haulmont.cuba.core.global.DeletePolicy;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @NamePattern("%s %s|shortname,name")
-@Table(name = "FIAS_FIAS_ENTITY")
+@Table(name = "FIAS_FIAS_ENTITY", indexes = {
+        @Index(name = "IDX_FIAS_FIAS_ENTITY", columnList = "CODE")
+})
 @Entity(name = "fias$FiasEntity")
 public class FiasEntity extends StandardEntity {
     private static final long serialVersionUID = 5234139283100152959L;
@@ -19,7 +25,13 @@ public class FiasEntity extends StandardEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_ID")
-    protected FiasEntity parent;
+    protected FiasEntity parentAdm;
+
+    @Lookup(type = LookupType.SCREEN, actions = {"lookup", "open", "clear"})
+    @OnDeleteInverse(DeletePolicy.CASCADE)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_MUN_ID")
+    protected FiasEntity parentMun;
 
     @Column(name = "POSTAL_CODE", length = 6)
     protected String postalCode;
@@ -34,10 +46,10 @@ public class FiasEntity extends StandardEntity {
     @Column(name = "POSSIBLE_NAMES")
     protected String possibleNames;
 
-    @Column(name = "CODE")
-    protected String code;
+    @Column(name = "CODE", unique = true)
+    protected Long garId;
 
-    @Column(name = "SHORTNAME", length = 10)
+    @Column(name = "SHORTNAME", length = 50)
     protected String shortname;
 
 
@@ -58,6 +70,25 @@ public class FiasEntity extends StandardEntity {
     @Temporal(TemporalType.DATE)
     @Column(name = "ENDDATE")
     protected Date enddate;
+
+    @Column(name = "PREV_ID")
+    protected Long prevID;
+
+    public FiasEntity getParentMun() {
+        return parentMun;
+    }
+
+    public void setParentMun(FiasEntity parentMun) {
+        this.parentMun = parentMun;
+    }
+
+    public void setPrevID(Long prevID) {
+        this.prevID = prevID;
+    }
+
+    public Long getPrevID() {
+        return prevID;
+    }
 
     public Date getEnddate() {
         return enddate;
@@ -103,12 +134,12 @@ public class FiasEntity extends StandardEntity {
     }
 
 
-    public void setParent(FiasEntity parent) {
-        this.parent = parent;
+    public void setParentAdm(FiasEntity parentAdm) {
+        this.parentAdm = parentAdm;
     }
 
-    public FiasEntity getParent() {
-        return parent;
+    public FiasEntity getParentAdm() {
+        return parentAdm;
     }
 
 
@@ -153,12 +184,12 @@ public class FiasEntity extends StandardEntity {
         return possibleNames;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setGarId(Long garId) {
+        this.garId = garId;
     }
 
-    public String getCode() {
-        return code;
+    public Long getGarId() {
+        return garId;
     }
 
     public void setShortname(String shortname) {

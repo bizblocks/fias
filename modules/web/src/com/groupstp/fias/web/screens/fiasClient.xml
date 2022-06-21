@@ -25,9 +25,9 @@
         <checkBox id="regionCheckField"
                   caption="msg://regionCheckField"/>
         <checkBox id="autonomyCheckField"
-                  caption="msg://autonomyCheckField"/>
+                  caption="msg://admRegionCheckField"/>
         <checkBox id="areaCheckField"
-                  caption="msg://areaCheckField"/>
+                  caption="msg://munRegionCheckField"/>
         <checkBox id="cityCheckField"
                   caption="msg://cityCheckField"/>
         <checkBox id="communityCheckField"

@@ -18,13 +18,14 @@
                     datasource="fiasEntityDs">
             <column width="350px">
                 <field property="name"/>
-                <field property="parent"/>
+                <field property="parentAdm"/>
+                <field property="parentMun"/>
                 <field property="postalCode"/>
                 <field property="offname"/>
                 <field property="formalname"/>
                 <field property="possibleNames"
                        rows="5"/>
-                <field property="code"/>
+                <field property="garId"/>
                 <field property="shortname"/>
                 <field property="updatedate"/>
                 <field property="actstatus"/>

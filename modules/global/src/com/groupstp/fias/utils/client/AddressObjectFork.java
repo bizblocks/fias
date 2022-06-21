@@ -1,13 +1,13 @@
 package com.groupstp.fias.utils.client;
 
-import org.meridor.fias.AddressObjects;
+import dev.smartdata.gar.ADDRESSOBJECTS;
 
 //Класс-обертка для хранения абсолютной позиции текущего найденного объекта в файле
 public class AddressObjectFork {
-    private AddressObjects.Object object;
+    private ADDRESSOBJECTS.OBJECT object;
     private long offset;
 
-    public AddressObjects.Object getObject() {
+    public ADDRESSOBJECTS.OBJECT getObject() {
         return object;
     }
 
@@ -15,7 +15,7 @@ public class AddressObjectFork {
         return offset;
     }
 
-    public AddressObjectFork(AddressObjects.Object object, long offset) {
+    public AddressObjectFork(ADDRESSOBJECTS.OBJECT object, long offset) {
         this.object = object;
         this.offset = offset;
     }
