@@ -9,24 +9,27 @@
         <hierarchicalDatasource id="fiasEntitiesAdmDs"
                                 class="com.groupstp.fias.entity.FiasEntity"
                                 hierarchyProperty="parentAdm"
-                                view="parent">
+                                view="parent"
+                                maxResults="0">
             <query>
-                <![CDATA[select e from fias$FiasEntity e where e.parentAdm is not null or e.parentMun is null]]>
+                <![CDATA[select e from fias$FiasEntity e where e.parentAdm is not null or e.parentMun is null and e.addressLevel<9 order by e.addressLevel]]>
             </query>
         </hierarchicalDatasource>
         <hierarchicalDatasource id="fiasEntitiesMunDs"
                                 class="com.groupstp.fias.entity.FiasEntity"
                                 hierarchyProperty="parentMun"
-                                view="parent">
+                                view="parent"
+                                maxResults="0">
             <query>
-                <![CDATA[select e from fias$FiasEntity e where e.parentMun is not null or e.parentAdm is null]]>
+                <![CDATA[select e from fias$FiasEntity e where e.parentMun is not null or e.parentAdm is null and e.addressLevel<9 order by e.addressLevel]]>
             </query>
         </hierarchicalDatasource>
         <hierarchicalDatasource id="fiasEntitiesDs"
                                 class="com.groupstp.fias.entity.FiasEntity"
-                                view="parent">
+                                view="parent"
+                                maxResults="0">
             <query>
-                <![CDATA[select e from fias$FiasEntity e ]]>
+                <![CDATA[select e from fias$FiasEntity e where e.addressLevel<9]]>
             </query>
         </hierarchicalDatasource>
     </dsContext>

@@ -11,6 +11,7 @@
             <map>
                 <entry key="fias_FiasReadService"
                        value="com.groupstp.fias.service.FiasReadService"/>
+                <entry key="fias_NormService" value="com.groupstp.fias.service.NormService"/>
             </map>
         </property>
     </bean>

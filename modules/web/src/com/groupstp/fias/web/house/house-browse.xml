@@ -10,7 +10,7 @@
                          class="com.groupstp.fias.entity.House"
                          view="parent">
             <query>
-                <![CDATA[select e from fias$House e]]>
+                <![CDATA[select e from fias_House e]]>
             </query>
         </groupDatasource>
     </dsContext>

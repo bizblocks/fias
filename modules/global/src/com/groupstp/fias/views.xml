@@ -24,9 +24,8 @@
     <view class="com.groupstp.fias.entity.City"
           extends="_local"
           name="parent">
-        <property name="parentAdm"
-                  view="_minimal"/>
         <property name="parentMun" view="_minimal"/>
+        <property name="parentAdm" view="_minimal"/>
     </view>
     <view class="com.groupstp.fias.entity.Community"
           extends="_local"
@@ -61,6 +60,34 @@
           name="parent">
         <property name="parentAdm"
                   view="_minimal"/>
+        <property name="parentMun" view="_minimal"/>
+    </view>
+    <view entity="fias_AdmRegions" name="parent" extends="_local">
+        <property name="parentAdm" view="_minimal"/>
+        <property name="parentMun" view="_minimal"/>
+    </view>
+    <view entity="fias_Locality" name="parent" extends="_local">
+        <property name="parentAdm" view="_minimal"/>
+        <property name="parentMun" view="_minimal"/>
+    </view>
+    <view entity="fias_NumRegion" name="parent" extends="_local">
+        <property name="parentAdm" view="_minimal"/>
+        <property name="parentMun" view="_minimal"/>
+    </view>
+    <view entity="fias_Settlement" name="parent" extends="_local">
+        <property name="parentAdm" view="_minimal"/>
+        <property name="parentMun" view="_minimal"/>
+    </view>
+    <view entity="fias_PlanningStructure" name="parent" extends="_local">
+        <property name="parentAdm" view="_minimal"/>
+        <property name="parentMun" view="_minimal"/>
+    </view>
+    <view entity="fias_Address" name="full" extends="_local">
+        <property name="house" view="_minimal"/>
+        <property name="fiasEntity" view="_minimal"/>
+    </view>
+    <view entity="fias_Stead" name="parent" extends="_local">
+        <property name="parentAdm" view="_minimal"/>
         <property name="parentMun" view="_minimal"/>
     </view>
 </views>

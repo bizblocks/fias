@@ -83,4 +83,9 @@ public interface FiasServiceConfig extends Config {
     @DefaultLong(0)
     long getProgressHouse();
     void setProgressHouse(long progress);
+
+    @Property("fias.fias-service.import-process.progressStead")
+    @DefaultLong(0)
+    long getProgressStead();
+    void setProgressStead(long progress);
 }

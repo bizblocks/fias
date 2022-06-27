@@ -1,0 +1,1 @@
+drop table if exists FIAS_HOUSE__U27685 cascade ;

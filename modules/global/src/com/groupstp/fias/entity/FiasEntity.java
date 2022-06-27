@@ -6,15 +6,18 @@ import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
+import com.haulmont.cuba.core.entity.annotation.OnDelete;
 import com.haulmont.cuba.core.entity.annotation.OnDeleteInverse;
 import com.haulmont.cuba.core.global.DeletePolicy;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @NamePattern("%s %s|shortname,name")
 @Table(name = "FIAS_FIAS_ENTITY", indexes = {
-        @Index(name = "IDX_FIAS_FIAS_ENTITY", columnList = "CODE")
+        @Index(name = "IDX_FIAS_FIAS_ENTITY_CODE", columnList = "CODE"),
+        @Index(name = "IDX_FIAS_FIAS_ENTITY_NAME", columnList = "NAME")
 })
 @Entity(name = "fias$FiasEntity")
 public class FiasEntity extends StandardEntity {
@@ -23,8 +26,13 @@ public class FiasEntity extends StandardEntity {
     @Column(name = "NAME")
     protected String name;
 
+    @Column(name = "ADDRESS_LEVEL")
+    protected Integer addressLevel;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_ID")
+    @OnDeleteInverse(DeletePolicy.CASCADE)
+    @Lookup(type = LookupType.SCREEN, actions = {"lookup", "open", "clear"})
     protected FiasEntity parentAdm;
 
     @Lookup(type = LookupType.SCREEN, actions = {"lookup", "open", "clear"})
@@ -73,6 +81,29 @@ public class FiasEntity extends StandardEntity {
 
     @Column(name = "PREV_ID")
     protected Long prevID;
+
+    @JoinTable(name = "FIAS_ADDRESS_FIAS_ENTITY_LINK",
+            joinColumns = @JoinColumn(name = "FIAS_ENTITY_ID"),
+            inverseJoinColumns = @JoinColumn(name = "ADDRESS_ID"))
+    @OnDelete(DeletePolicy.CASCADE)
+    @ManyToMany
+    protected List<Address> addresses;
+
+    public Integer getAddressLevel() {
+        return addressLevel;
+    }
+
+    public void setAddressLevel(Integer addressLevel) {
+        this.addressLevel = addressLevel;
+    }
+
+    public List<Address> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
+    }
 
     public FiasEntity getParentMun() {
         return parentMun;

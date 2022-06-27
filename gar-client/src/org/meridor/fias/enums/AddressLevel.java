@@ -10,6 +10,8 @@ public enum AddressLevel {
     LOCALITY("6"),
     PLANNING_STRUCTURE("7"),
     STREET("8"),
+    STEAD("9"),
+    HOUSE("10"),
     SUPPLEMENTARY_TERRITORY("90"),
     CHILD_SUPPLEMENTARY_TERRITORY("91");
 

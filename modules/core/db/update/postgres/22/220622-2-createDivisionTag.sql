@@ -1,0 +1,1 @@
+create index IDX_FIAS_DIVISION_TAG on FIAS_DIVISION_TAG (TAG);

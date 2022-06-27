@@ -17,8 +17,10 @@ import com.haulmont.cuba.gui.executors.BackgroundTaskHandler;
 import com.haulmont.cuba.gui.executors.BackgroundWorker;
 import com.haulmont.cuba.gui.executors.TaskLifeCycle;
 import dev.smartdata.gar.ADDRESSOBJECTS;
+import dev.smartdata.gar.ADMHIERARCHY.ITEMS;
 import dev.smartdata.gar.HOUSES;
 import dev.smartdata.gar.PARAMS;
+import dev.smartdata.gar.STEADS;
 import org.meridor.fias.enums.AddressLevel;
 import org.meridor.fias.enums.FiasFile;
 import org.meridor.fias.loader.XMLLoader;
@@ -40,8 +42,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static org.meridor.fias.enums.FiasFile.ADDRESS_OBJECTS;
-import static org.meridor.fias.enums.FiasFile.HOUSE;
+import static org.meridor.fias.enums.FiasFile.*;
 
 public class Fiasclientv2 extends AbstractWindow {
     private static final Logger log = LoggerFactory.getLogger("FiasClient");
@@ -101,6 +102,8 @@ public class Fiasclientv2 extends AbstractWindow {
     Map<Long, Long> admParents;
     Map<Long, Long> munParents;
     Map<Long, Map<String, Object>> parameters;
+    @Inject
+    private CheckBox steadCheckField;
 
 
     @Override
@@ -120,6 +123,7 @@ public class Fiasclientv2 extends AbstractWindow {
         options.put(AddressLevel.LOCALITY, localityCheckField.getValue());
         options.put(AddressLevel.PLANNING_STRUCTURE, planStructCheckField.getValue());
         options.put(AddressLevel.STREET, streetCheckField.getValue());
+        options.put(AddressLevel.STEAD, steadCheckField.getValue());
         options.put("needLoadHouses", houseCheckField.getValue());
 //        if (regionField.getValue() != null)
 //            options.put("regionId", (regionField.getValue()));
@@ -139,6 +143,9 @@ public class Fiasclientv2 extends AbstractWindow {
             Class clazz;
             Function<ADDRESSOBJECTS.OBJECT, Long> getCodeFunction;
             Predicate<ADDRESSOBJECTS.OBJECT> predicate;
+
+            int batchSize = configuration.getConfig(FiasServiceConfig.class).getBatchSize();
+
 
             @Override
             public Void run(TaskLifeCycle<Integer> taskLifeCycle) throws Exception {
@@ -184,12 +191,17 @@ public class Fiasclientv2 extends AbstractWindow {
 
                 //грузим PLANNING_STRUCTURE
                 if ((boolean) options.getOrDefault(AddressLevel.PLANNING_STRUCTURE, true)) {
-                    loadObjects(PlanningStucture.class, AddressLevel.PLANNING_STRUCTURE, filePath, taskLifeCycle);
+                    loadObjects(PlanningStructure.class, AddressLevel.PLANNING_STRUCTURE, filePath, taskLifeCycle);
                 }
 
                 //грузим Streets
                 if ((boolean) options.getOrDefault(AddressLevel.STREET, true)) {
                     loadObjects(Street.class, AddressLevel.STREET, filePath, taskLifeCycle);
+                }
+
+                //грузим Steads
+                if ((boolean) options.getOrDefault(AddressLevel.STEAD, true)) {
+                    loadSteads(taskLifeCycle);
                 }
 
                 //грузим Houses
@@ -200,9 +212,43 @@ public class Fiasclientv2 extends AbstractWindow {
                 return null;
             }
 
+            private void loadSteads(TaskLifeCycle<Integer> taskLifeCycle) throws IOException, InterruptedException {
+                clazz = Stead.class;
+                lastClassWorked = clazz;
+                Path filePathSteads = getPathByPattern(STEAD.getName());
+                progress = getConfigProgress(clazz);
+                PartialUnmarshallerFork<STEADS.STEAD> pum = garClient.getUnmarshallerFork(STEADS.STEAD.class, progress);
+                sendToLog(MessageFormat.format("Start Creating objects of class {0}", clazz.getSimpleName()));
+                List<Stead> steads = new ArrayList<>();
+                while (pum.hasNext()) {
+                    if (taskLifeCycle.isCancelled() || taskLifeCycle.isInterrupted()) {
+                        break;
+                    } else {
+                        final STEADS.STEAD fiasStead = pum.next();
+                        Stead stead = getSteadEntity(fiasStead);
+                        stead = processSteadEntity(fiasStead, stead);
+                        if (stead != null)
+                            steads.add(stead);
+                    }
+                    progress = pum.getInputStream().getProgress();
+                    percentValue = (int) (Math.abs((double) progress / (double) Files.size(filePathSteads) * 100));
+                    taskLifeCycle.publish(percentValue);
+                    if (steads.size() == batchSize) {
+                        CommitContext commitContext = new CommitContext(steads);
+                        dataManager.commit(commitContext);
+                        log.debug(MessageFormat.format("{0} new Steads were processed (class = {1}), reached {2}% of file",
+                                steads.size(),
+                                clazz.getSimpleName(),
+                                percentValue));
+                        steads.clear();
+                    }
+                }
+                dataManager.commit(new CommitContext(steads));
+                sendToLog(MessageFormat.format("Finished Creating objects of class {0}", clazz.getSimpleName()));
+            }
+            
             private void loadHouses(TaskLifeCycle<Integer> taskLifeCycle) throws IOException, InterruptedException, JAXBException {
                 loadParameters();
-                int batchSize = configuration.getConfig(FiasServiceConfig.class).getBatchSize();
                 clazz = House.class;
                 lastClassWorked = clazz;
                 Path filePathHouses = getPathByPattern(HOUSE.getName());
@@ -233,6 +279,7 @@ public class Fiasclientv2 extends AbstractWindow {
                         houses.clear();
                     }
                 }
+                dataManager.commit(new CommitContext(houses));
                 sendToLog(MessageFormat.format("Finished Creating objects of class {0}", clazz.getSimpleName()));
 
             }
@@ -244,10 +291,10 @@ public class Fiasclientv2 extends AbstractWindow {
                 admParents = new HashMap<>();
 
                 XMLLoader loader = new XMLLoader(xmlDirectory);
-                loader.loadReferenceTable(FiasFile.ADM_HIERARCHY, dev.smartdata.gar.ADMHIERARCHY.ITEMS.class).getITEM().forEach(p -> {
+                loader.loadReferenceTable(ADM_HIERARCHY, ITEMS.class).getITEM().forEach(p -> {
                         admParents.put(p.getOBJECTID(), p.getPARENTOBJID());
                 });
-                loader.loadReferenceTable(FiasFile.MUN_HIERARCHY, dev.smartdata.gar.MUNHIERARCHY.ITEMS.class).getITEM().forEach(p -> {
+                loader.loadReferenceTable(MUN_HIERARCHY, dev.smartdata.gar.MUNHIERARCHY.ITEMS.class).getITEM().forEach(p -> {
                         munParents.put(p.getOBJECTID(), p.getPARENTOBJID());
                 });
             }
@@ -257,7 +304,7 @@ public class Fiasclientv2 extends AbstractWindow {
                     return;
                 parameters = new HashMap<>();
                 XMLLoader loader = new XMLLoader(xmlDirectory);
-                loader.loadReferenceTable(FiasFile.HOUSES_PARAMS, PARAMS.class).getPARAM().forEach(param -> {
+                loader.loadReferenceTable(HOUSES_PARAMS, PARAMS.class).getPARAM().forEach(param -> {
                     long id = param.getOBJECTID();
                     if (!parameters.containsKey(id))
                         parameters.put(id, new HashMap<>());
@@ -311,8 +358,7 @@ public class Fiasclientv2 extends AbstractWindow {
                         sendToLog("Searching next batch of objects...");
                         List<AddressObjectFork> addressObjectForks = garClient.loadList(predicate, filePath, progress, batchSize);
                         if (addressObjectForks.size() == 0) {
-                            sendToLog(MessageFormat.format("{0} new Fias Entities were processed (class = {1}), reached 100% of file",
-                                    addressObjectForks.size(),
+                            sendToLog(MessageFormat.format("0 new Fias Entities were processed (class = {1}), reached 100% of file",
                                     clazz.getSimpleName()));
                             break;
                         } else {
@@ -402,7 +448,60 @@ public class Fiasclientv2 extends AbstractWindow {
         config.setProgressPlanningStructure(0);
         config.setProgressStreet(0);
         config.setProgressHouse(0);
+        config.setProgressStead(0);
     }
+
+    private Stead getSteadEntity(STEADS.STEAD fiasStead) {
+        final UUID entityId;
+        final String steadguid = fiasStead.getOBJECTGUID();
+        try {
+            entityId = UUID.fromString(steadguid);
+        } catch (IllegalArgumentException e) {
+            log.warn("Wrong entity ID format (HOUSEGUID) for element {} with id: {}",
+                    STEADS.STEAD.class.getSimpleName(), steadguid);
+            return null;
+        }
+
+        return dataManager.load(Stead.class)
+                .id(entityId)
+                .view("parent")
+                .optional()
+                .orElseGet(() -> {
+                    final Stead newEntity = dataManager.create(Stead.class);
+                    newEntity.setId(entityId);
+                    return newEntity;
+                });
+    }
+
+    private Stead processSteadEntity(STEADS.STEAD fiasStead, Stead entity) {
+        long parentIdAdm = admParents.getOrDefault(fiasStead.getOBJECTID().longValue(), 0l);
+        long parentIdMun = munParents.getOrDefault(fiasStead.getOBJECTID().longValue(), 0l);
+
+        final FiasEntity parentEntityAdm = dataManager.load(FiasEntity.class)
+                .query("e.garId=?1", parentIdAdm)
+                .optional()
+                .orElse(null);
+        final FiasEntity parentEntityMun = dataManager.load(FiasEntity.class)
+                .query("e.garId=?1", parentIdMun)
+                .optional()
+                .orElse(null);
+
+        Stead stead = entity;
+        stead.setValue("parentAdm", parentEntityAdm, true);
+        stead.setValue("parentMun", parentEntityMun, true);
+        stead.setValue("garId", fiasStead.getOBJECTID().longValue(), true);
+        stead.setValue("number", fiasStead.getNUMBER(), true);
+        stead.setValue("isactive", fiasStead.getISACTIVE().intValue()==1, true);
+        stead.setValue("isactual", fiasStead.getISACTUAL().intValue()==1, true);
+        stead.setValue("startdate", fiasStead.getSTARTDATE().toGregorianCalendar().getTime(), true);
+        stead.setValue("updatedate", fiasStead.getUPDATEDATE().toGregorianCalendar().getTime(), true);
+        stead.setValue("enddate", fiasStead.getENDDATE().toGregorianCalendar().getTime(), true);
+        stead.setValue("addressLevel", 9);
+
+        return stead;
+    }
+    
+
 
     private House getHouseEntity(HOUSES.HOUSE fiasHouse) {
         final UUID entityId;
@@ -427,16 +526,8 @@ public class Fiasclientv2 extends AbstractWindow {
     }
 
     private House processHouseEntity(HOUSES.HOUSE fiasHouse, House entity) {
-        long parentIdAdm = 0;
-        long parentIdMun = 0;
-        try {
-            parentIdAdm = admParents.getOrDefault(fiasHouse.getOBJECTID(), 0l);
-            parentIdMun = admParents.getOrDefault(fiasHouse.getOBJECTID(), 0l);
-        } catch (IllegalArgumentException e) {
-            log.warn("Wrong parent ID format (AOGUID) for element {} with id: {}",
-                    HOUSES.HOUSE.class.getSimpleName(), fiasHouse.getOBJECTGUID());
-            return null;
-        }
+        long parentIdAdm = admParents.getOrDefault(fiasHouse.getOBJECTID(), 0l);
+        long parentIdMun = munParents.getOrDefault(fiasHouse.getOBJECTID(), 0l);
 
         final FiasEntity parentEntityAdm = dataManager.load(FiasEntity.class)
                 .query("e.garId=?1", parentIdAdm)
@@ -455,13 +546,16 @@ public class Fiasclientv2 extends AbstractWindow {
             Map values = parameters.get(fiasHouse.getOBJECTID());
             values.forEach((k,v) -> house.setValue(k.toString() ,v, true));
         }
+        house.setValue("garId", fiasHouse.getOBJECTID(), true);
         house.setValue("housenum", fiasHouse.getHOUSENUM(), true);
-        house.setValue("eststatus", fiasHouse.getISACTIVE().intValue(), true);
         house.setValue("buildnum", fiasHouse.getADDNUM1(), true);
-//        house.setValue("strstatus", fiasHouse.getSTRSTATUS().intValue(), true);
         house.setValue("strucnum", fiasHouse.getADDNUM2(), true);
+        house.setValue("isactive", fiasHouse.getISACTIVE().intValue()==1, true);
+        house.setValue("isactual", fiasHouse.getISACTUAL().intValue()==1, true);
         house.setValue("startdate", fiasHouse.getSTARTDATE().toGregorianCalendar().getTime(), true);
+        house.setValue("updatedate", fiasHouse.getUPDATEDATE().toGregorianCalendar().getTime(), true);
         house.setValue("enddate", fiasHouse.getENDDATE().toGregorianCalendar().getTime(), true);
+        house.setValue("addressLevel", 10);
 
         return house;
     }
@@ -545,6 +639,7 @@ public class Fiasclientv2 extends AbstractWindow {
         entity.setValue("enddate", object.getENDDATE().toGregorianCalendar().getTime(), true);
         entity.setValue("prevID", object.getPREVID(), true);
         entity.setValue("garId", object.getOBJECTID(), true);
+        entity.setValue("addressLevel", object.getLEVEL());
         return entity;
     }
 

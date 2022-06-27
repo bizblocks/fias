@@ -1,10 +1,7 @@
 package com.groupstp.fias.web.fiasentity;
 
 import com.groupstp.fias.entity.FiasEntity;
-import com.haulmont.cuba.gui.components.AbstractLookup;
-import com.haulmont.cuba.gui.components.HasValue;
-import com.haulmont.cuba.gui.components.RadioButtonGroup;
-import com.haulmont.cuba.gui.components.TreeTable;
+import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.data.GroupDatasource;
 import com.haulmont.cuba.gui.data.HierarchicalDatasource;
 import com.haulmont.cuba.gui.screen.Subscribe;
@@ -26,6 +23,8 @@ public class FiasEntityBrowse extends AbstractLookup {
     private HierarchicalDatasource<FiasEntity, UUID> fiasEntitiesMunDs;
     @Inject
     private HierarchicalDatasource<FiasEntity, UUID> fiasEntitiesDs;
+    @Inject
+    private Filter filter;
 
     @Subscribe
     public void onInit(InitEvent event) {

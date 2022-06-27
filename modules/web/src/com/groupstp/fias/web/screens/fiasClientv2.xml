@@ -22,6 +22,8 @@
                   caption="msg://locationCheckField"/>
         <checkBox id="streetCheckField"
                   caption="msg://streetCheckField"/>
+        <checkBox id="steadCheckField"
+                  caption="msg://steadCheckField"/>
         <checkBox id="houseCheckField"
                   caption="msg://houseCheckField"/>
 <!--

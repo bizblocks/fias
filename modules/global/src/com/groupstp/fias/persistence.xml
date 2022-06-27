@@ -16,6 +16,9 @@
         <class>com.groupstp.fias.entity.MunRegion</class>
         <class>com.groupstp.fias.entity.Settlement</class>
         <class>com.groupstp.fias.entity.Locality</class>
-        <class>com.groupstp.fias.entity.PlanningStucture</class>
+        <class>com.groupstp.fias.entity.PlanningStructure</class>
+        <class>com.groupstp.fias.entity.DivisionTag</class>
+        <class>com.groupstp.fias.entity.Address</class>
+        <class>com.groupstp.fias.entity.Stead</class>
     </persistence-unit>
 </persistence>

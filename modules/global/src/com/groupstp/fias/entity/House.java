@@ -7,15 +7,40 @@ import com.haulmont.cuba.core.entity.annotation.OnDeleteInverse;
 import com.haulmont.cuba.core.global.DeletePolicy;
 
 import javax.persistence.*;
-import java.util.Date;
+import javax.validation.constraints.NotNull;
 
 @Table(name = "FIAS_HOUSE")
-@Entity(name = "fias$House")
+@Entity(name = "fias_House")
 public class House extends StandardEntity {
     private static final long serialVersionUID = 101923876676193777L;
 
+    @NotNull
+    @Column(name = "GAR_ID", nullable = false, unique = true)
+    protected Long garId;
+
     @Column(name = "POSTALCODE", length = 6)
     protected String postalcode;
+
+    @Column(name = "HOUSENUM", length = 20)
+    protected String housenum;
+
+    @Column(name = "BUILDNUM", length = 10)
+    protected String buildnum;
+
+    @Column(name = "STRUCNUM", length = 10)
+    protected String strucnum;
+
+    @Lookup(type = LookupType.SCREEN, actions = {"lookup", "open", "clear"})
+    @OnDeleteInverse(DeletePolicy.CASCADE)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_ADM_ID")
+    protected FiasEntity parentAdm;
+
+    @Lookup(type = LookupType.SCREEN, actions = {"lookup", "open", "clear"})
+    @OnDeleteInverse(DeletePolicy.CASCADE)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_MUN_ID")
+    protected FiasEntity parentMun;
 
     @Column(name = "CADASTRAL_NUMBER")
     protected String cadastralNumber;
@@ -38,40 +63,35 @@ public class House extends StandardEntity {
     @Column(name = "OKTMO", length = 11)
     protected String oktmo;
 
-    @Column(name = "HOUSENUM", length = 20)
-    protected String housenum;
+    @Column(name = "ISACTUAL")
+    protected Boolean isactual;
 
-    @Column(name = "ESTSTATUS")
-    protected Integer eststatus;
+    @Column(name = "ISACTIVE")
+    protected Boolean isactive;
 
-    @Column(name = "BUILDNUM", length = 10)
-    protected String buildnum;
+    public Boolean getIsactive() {
+        return isactive;
+    }
 
-    @Column(name = "STRUCNUM", length = 10)
-    protected String strucnum;
+    public void setIsactive(Boolean isactive) {
+        this.isactive = isactive;
+    }
 
-    @Column(name = "STRSTATUS")
-    protected Integer strstatus;
+    public Boolean getIsactual() {
+        return isactual;
+    }
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "STARTDATE")
-    protected Date startdate;
+    public void setIsactual(Boolean isactual) {
+        this.isactual = isactual;
+    }
 
-    @Temporal(TemporalType.DATE)
-    @Column(name = "ENDDATE")
-    protected Date enddate;
+    public Long getGarId() {
+        return garId;
+    }
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PARENT_ID")
-    @Lookup(type = LookupType.SCREEN, actions = {"lookup", "open", "clear"})
-    @OnDeleteInverse(DeletePolicy.CASCADE)
-    protected FiasEntity parentAdm;
-
-    @Lookup(type = LookupType.SCREEN, actions = {})
-    @OnDeleteInverse(DeletePolicy.CASCADE)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PARENT_MUN_ID")
-    protected FiasEntity parentMun;
+    public void setGarId(Long garId) {
+        this.garId = garId;
+    }
 
     public FiasEntity getParentMun() {
         return parentMun;
@@ -79,6 +99,14 @@ public class House extends StandardEntity {
 
     public void setParentMun(FiasEntity parentMun) {
         this.parentMun = parentMun;
+    }
+
+    public FiasEntity getParentAdm() {
+        return parentAdm;
+    }
+
+    public void setParentAdm(FiasEntity parentAdm) {
+        this.parentAdm = parentAdm;
     }
 
     public String getCadastralNumber() {
@@ -155,23 +183,6 @@ public class House extends StandardEntity {
     }
 
 
-    public void setStartdate(Date startdate) {
-        this.startdate = startdate;
-    }
-
-    public Date getStartdate() {
-        return startdate;
-    }
-
-    public void setEnddate(Date enddate) {
-        this.enddate = enddate;
-    }
-
-    public Date getEnddate() {
-        return enddate;
-    }
-
-
     public void setStrucnum(String strucnum) {
         this.strucnum = strucnum;
     }
@@ -180,30 +191,6 @@ public class House extends StandardEntity {
         return strucnum;
     }
 
-    public void setStrstatus(Integer strstatus) {
-        this.strstatus = strstatus;
-    }
-
-    public Integer getStrstatus() {
-        return strstatus;
-    }
-
-    public void setParentAdm(FiasEntity parentAdm) {
-        this.parentAdm = parentAdm;
-    }
-
-    public FiasEntity getParentAdm() {
-        return parentAdm;
-    }
-
-
-    public void setEststatus(Integer eststatus) {
-        this.eststatus = eststatus;
-    }
-
-    public Integer getEststatus() {
-        return eststatus;
-    }
 
     public void setBuildnum(String buildnum) {
         this.buildnum = buildnum;
