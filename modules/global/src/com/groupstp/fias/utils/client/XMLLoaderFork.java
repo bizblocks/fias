@@ -2,6 +2,8 @@ package com.groupstp.fias.utils.client;
 
 import com.haulmont.cuba.core.global.Configuration;
 import dev.smartdata.gar.ADDRESSOBJECTS;
+import org.meridor.fias.enums.AddressLevel;
+import org.meridor.fias.enums.FiasFile;
 import org.meridor.fias.loader.PartialUnmarshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,9 +45,9 @@ public class XMLLoaderFork {
         return xmlDirectory.resolve(filePath.get());
     }
 
-    public <T> PartialUnmarshaller<T> getUnmarshaller(Class<T> clazz) {
+    public <T> PartialUnmarshaller<T> getUnmarshaller(Class<T> clazz, FiasFile level) {
         try {
-            Path filePath = getPathByPattern(HOUSE.getName());
+            Path filePath = getPathByPattern(level.getName());
             InputStream inputStream = new BufferedInputStream(new FileInputStream(filePath.toFile()));
             return new PartialUnmarshaller<>(inputStream, clazz);
         } catch (Exception e) {
@@ -53,9 +55,9 @@ public class XMLLoaderFork {
         }
     }
 
-    public <T> PartialUnmarshallerFork<T> getUnmarshallerFork(Class<T> clazz, long offset) {
+    public <T> PartialUnmarshallerFork<T> getUnmarshallerFork(Class<T> clazz, FiasFile level, long offset) {
         try {
-            Path filePath = getPathByPattern(HOUSE.getName());
+            Path filePath = getPathByPattern(level.getName());
             ProgressCounterFilterInputStream inputStream = new ProgressCounterFilterInputStream(new BufferedInputStream(new FileInputStream(filePath.toFile())));
             return new PartialUnmarshallerFork<T>(inputStream, clazz, offset);
         } catch (Exception e) {

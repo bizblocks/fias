@@ -2,6 +2,8 @@ package com.groupstp.fias.utils.client;
 
 
 import dev.smartdata.gar.ADDRESSOBJECTS;
+import org.meridor.fias.enums.AddressLevel;
+import org.meridor.fias.enums.FiasFile;
 import org.meridor.fias.loader.PartialUnmarshaller;
 
 import java.io.FileNotFoundException;
@@ -23,12 +25,12 @@ public class GarClientFork {
         xmlLoaderFork = new XMLLoaderFork(xmlDirectory);
     }
 
-    public <T> PartialUnmarshaller<T> getUnmarshaller(Class<T> clazz) {
-        return xmlLoaderFork.getUnmarshaller(clazz);
+    public <T> PartialUnmarshaller<T> getUnmarshaller(Class<T> clazz, FiasFile pattern) {
+        return xmlLoaderFork.getUnmarshaller(clazz, pattern);
     }
 
-    public <T> PartialUnmarshallerFork<T> getUnmarshallerFork(Class<T> clazz, long offset) {
-        return xmlLoaderFork.getUnmarshallerFork(clazz, offset);
+    public <T> PartialUnmarshallerFork<T> getUnmarshallerFork(Class<T> clazz, FiasFile pattern, long offset) {
+        return xmlLoaderFork.getUnmarshallerFork(clazz, pattern, offset);
     }
 
     @Deprecated

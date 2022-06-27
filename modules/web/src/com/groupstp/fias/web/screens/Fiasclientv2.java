@@ -154,8 +154,6 @@ public class Fiasclientv2 extends AbstractWindow {
                 xmlDirectory = Paths.get(path);
                 garClient = new GarClientFork(xmlDirectory);
                 Path filePath = getPathByPattern(ADDRESS_OBJECTS.getName());
-                UUID regionId = options.containsKey("regionId") ? UUID.fromString((String) options.get("regionId")) : null;
-                UUID cityId = options.containsKey("cityId") ? UUID.fromString((String) options.get("cityId")) : null;
 
                 loadParents();
 
@@ -217,7 +215,7 @@ public class Fiasclientv2 extends AbstractWindow {
                 lastClassWorked = clazz;
                 Path filePathSteads = getPathByPattern(STEAD.getName());
                 progress = getConfigProgress(clazz);
-                PartialUnmarshallerFork<STEADS.STEAD> pum = garClient.getUnmarshallerFork(STEADS.STEAD.class, progress);
+                PartialUnmarshallerFork<STEADS.STEAD> pum = garClient.getUnmarshallerFork(STEADS.STEAD.class, STEAD,  progress);
                 sendToLog(MessageFormat.format("Start Creating objects of class {0}", clazz.getSimpleName()));
                 List<Stead> steads = new ArrayList<>();
                 while (pum.hasNext()) {
@@ -253,7 +251,7 @@ public class Fiasclientv2 extends AbstractWindow {
                 lastClassWorked = clazz;
                 Path filePathHouses = getPathByPattern(HOUSE.getName());
                 progress = getConfigProgress(clazz);
-                PartialUnmarshallerFork<HOUSES.HOUSE> pum = garClient.getUnmarshallerFork(HOUSES.HOUSE.class, progress);
+                PartialUnmarshallerFork<HOUSES.HOUSE> pum = garClient.getUnmarshallerFork(HOUSES.HOUSE.class, FiasFile.HOUSE, progress);
                 sendToLog(MessageFormat.format("Start Creating objects of class {0}", clazz.getSimpleName()));
                 List<House> houses = new ArrayList<>();
                 while (pum.hasNext()) {
