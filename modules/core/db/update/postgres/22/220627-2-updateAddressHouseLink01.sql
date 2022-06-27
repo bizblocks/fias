@@ -1,0 +1,1 @@
+alter table FIAS_ADDRESS_HOUSE_LINK add constraint FK_FIAS_ADDRESS_HOUSE_LINK_HOUSE foreign key (HOUSE_ID) references FIAS_HOUSE(ID);

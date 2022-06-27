@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        caption="msg://normalizeAddress.caption"
+        messagesPack="com.groupstp.fias.web.screens">
+    <layout expand="spacer" spacing="true">
+        <textField id="srcAddress" caption="msg://srcAddress.caption" width="100%"/>
+        <button id="normalize" caption="msg://normalize.caption"/>
+        <textField id="normAddress" caption="msg://normAddress.caption" width="100%"/>
+        <label id="spacer"/>
+    </layout>
+</window>
