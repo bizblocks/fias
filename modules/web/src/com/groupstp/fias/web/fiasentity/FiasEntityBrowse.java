@@ -43,6 +43,7 @@ public class FiasEntityBrowse extends AbstractLookup {
             fiasEntitiesTable.setDatasource(fiasEntitiesDs);
         }
         fiasEntitiesTable.getDatasource().refresh();
+        filter.setDatasource(fiasEntitiesTable.getDatasource());
     }
     
     

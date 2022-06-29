@@ -9,31 +9,121 @@
         <datasource id="fiasEntityDs"
                     class="com.groupstp.fias.entity.FiasEntity"
                     view="parent"/>
+        <collectionDatasource id="housesDs" class="com.groupstp.fias.entity.House" view="parent">
+            <query>
+                <![CDATA[select e from fias_House e where e.parentAdm.id=:ds$fiasEntityDs.id]]>
+            </query>
+        </collectionDatasource>
+        <collectionDatasource id="steadsDs" class="com.groupstp.fias.entity.Stead" view="parent">
+            <query>
+                <![CDATA[select e from fias_Stead e where e.parentAdm.id=:ds$fiasEntityDs.id]]>
+            </query>
+        </collectionDatasource>
+        <collectionDatasource id="childrenDs" class="com.groupstp.fias.entity.FiasEntity" view="parent">
+            <query>
+                <![CDATA[select e from fias$FiasEntity e where e.parentAdm.id=:ds$fiasEntityDs.id or e.parentMun.id=:ds$fiasEntityDs.id]]>
+            </query>
+        </collectionDatasource>
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
-    <layout expand="windowActions"
+    <layout expand="tab"
             spacing="true">
-        <fieldGroup id="fieldGroup"
-                    datasource="fiasEntityDs">
-            <column width="350px">
-                <field property="name"/>
-                <field property="parentAdm"/>
-                <field property="parentMun"/>
-                <field property="postalCode"/>
-                <field property="offname"/>
-                <field property="formalname"/>
-                <field property="possibleNames"
-                       rows="5"/>
-                <field property="garId"/>
-                <field property="shortname"/>
-                <field property="updatedate"/>
-                <field property="actstatus"/>
-                <field property="operstatus"/>
-                <field property="startdate"/>
-                <field property="enddate"/>
-            </column>
-        </fieldGroup>
+        <tabSheet id="tab">
+            <tab id="main" caption="msg://main.caption_1">
+                <fieldGroup id="fieldGroup"
+                                    datasource="fiasEntityDs">
+                    <column width="350px">
+                        <field property="name"/>
+                        <field property="parentAdm"/>
+                        <field property="parentMun"/>
+                        <field property="postalCode"/>
+                        <field property="offname"/>
+                        <field property="formalname"/>
+                        <field property="possibleNames"
+                               rows="5"/>
+                        <field property="garId"/>
+                        <field property="shortname"/>
+                        <field property="updatedate"/>
+                        <field property="actstatus"/>
+                        <field property="operstatus"/>
+                        <field property="startdate"/>
+                        <field property="enddate"/>
+                    </column>
+                </fieldGroup>
+            </tab>
+            <tab id="children" caption="msg://children.caption" expand="childrenTable">
+                <table id="childrenTable" >
+                    <rows datasource="childrenDs"/>
+                    <rowsCount autoLoad="true"/>
+                    <columns>
+                        <column id="name"/>
+                        <column id="addressLevel"/>
+                        <column id="parentAdm"/>
+                        <column id="parentMun"/>
+                        <column id="postalCode"/>
+                        <column id="offname"/>
+                        <column id="formalname"/>
+                        <column id="possibleNames"/>
+                        <column id="garId"/>
+                        <column id="shortname"/>
+                        <column id="updatedate"/>
+                        <column id="actstatus"/>
+                        <column id="operstatus"/>
+                        <column id="startdate"/>
+                        <column id="enddate"/>
+                        <column id="prevID"/>
+                    </columns>
+                </table>
+            </tab>
+            <tab id="houses" caption="msg://houses.caption" expand="housesTable">
+                <table id="housesTable" height="AUTO" width="AUTO">
+                    <columns>
+                        <column id="garId"/>
+                        <column id="postalcode"/>
+                        <column id="housenum"/>
+                        <column id="buildnum"/>
+                        <column id="strucnum"/>
+                        <column id="parentAdm"/>
+                        <column id="parentMun"/>
+                        <column id="cadastralNumber"/>
+                        <column id="ifnsfl"/>
+                        <column id="terrifnsfl"/>
+                        <column id="ifnsul"/>
+                        <column id="terrifnsul"/>
+                        <column id="okato"/>
+                        <column id="oktmo"/>
+                        <column id="isactual"/>
+                        <column id="isactive"/>
+                        <column id="addressLevel"/>
+                        <column id="startdate"/>
+                        <column id="enddate"/>
+                        <column id="updatedate"/>
+                    </columns>
+                    <rows datasource="housesDs"/>
+                    <rowsCount autoLoad="true"/>
+                </table>
+            </tab>
+            <tab id="steads" caption="msg://steads.caption" expand="steadsTable">
+                <table id="steadsTable" height="AUTO" width="AUTO">
+                    <rows datasource="steadsDs"/>
+                    <columns>
+                        <column id="garId"/>
+                        <column id="number"/>
+                        <column id="parentAdm"/>
+                        <column id="parentMun"/>
+                        <column id="startdate"/>
+                        <column id="enddate"/>
+                        <column id="updatedate"/>
+                        <column id="isactual"/>
+                        <column id="isactive"/>
+                        <column id="addressLevel"/>
+                    </columns>
+                    <rowsCount autoLoad="true"/>
+                </table>
+            </tab>
+
+        </tabSheet>
         <frame id="windowActions"
                screen="editWindowActions"/>
     </layout>

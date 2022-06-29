@@ -49,7 +49,6 @@ cuba {
     }
     tomcat {
         port = '9090'
-        ajpPort = '9009'
         shutdownPort = '9005'
         debugPort = '9797'
     }

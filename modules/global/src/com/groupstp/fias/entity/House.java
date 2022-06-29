@@ -1,5 +1,6 @@
 package com.groupstp.fias.entity;
 
+import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
@@ -8,9 +9,11 @@ import com.haulmont.cuba.core.global.DeletePolicy;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Table(name = "FIAS_HOUSE")
 @Entity(name = "fias_House")
+@NamePattern("%s %s %s|housenum,buildnum,strucnum")
 public class House extends StandardEntity {
     private static final long serialVersionUID = 101923876676193777L;
 
@@ -68,6 +71,53 @@ public class House extends StandardEntity {
 
     @Column(name = "ISACTIVE")
     protected Boolean isactive;
+
+    @Column(name = "ADDRESS_LEVEL")
+    protected Integer addressLevel;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "STARTDATE")
+    protected Date startdate;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "ENDDATE")
+    protected Date enddate;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "UPDATEDATE")
+    protected Date updatedate;
+
+    public Date getUpdatedate() {
+        return updatedate;
+    }
+
+    public void setUpdatedate(Date updatedate) {
+        this.updatedate = updatedate;
+    }
+
+    public Date getEnddate() {
+        return enddate;
+    }
+
+    public void setEnddate(Date enddate) {
+        this.enddate = enddate;
+    }
+
+    public Date getStartdate() {
+        return startdate;
+    }
+
+    public void setStartdate(Date startdate) {
+        this.startdate = startdate;
+    }
+
+    public Integer getAddressLevel() {
+        return addressLevel;
+    }
+
+    public void setAddressLevel(Integer addressLevel) {
+        this.addressLevel = addressLevel;
+    }
 
     public Boolean getIsactive() {
         return isactive;

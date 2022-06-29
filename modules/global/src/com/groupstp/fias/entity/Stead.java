@@ -1,17 +1,21 @@
 package com.groupstp.fias.entity;
 
+import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
+import com.haulmont.cuba.core.entity.annotation.OnDelete;
 import com.haulmont.cuba.core.entity.annotation.OnDeleteInverse;
 import com.haulmont.cuba.core.global.DeletePolicy;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.List;
 
 @Table(name = "FIAS_STEAD")
 @Entity(name = "fias_Stead")
+@NamePattern("%s|number")
 public class Stead extends StandardEntity {
     private static final long serialVersionUID = 8491487611669490288L;
 
@@ -54,6 +58,21 @@ public class Stead extends StandardEntity {
 
     @Column(name = "ADDRESS_LEVEL")
     protected Integer addressLevel;
+
+    @JoinTable(name = "FIAS_ADDRESS_STEAD_LINK",
+            joinColumns = @JoinColumn(name = "STEAD_ID"),
+            inverseJoinColumns = @JoinColumn(name = "ADDRESS_ID"))
+    @OnDelete(DeletePolicy.CASCADE)
+    @ManyToMany
+    protected List<Address> addresses;
+
+    public List<Address> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
+    }
 
     public void setAddressLevel(Integer addressLevel) {
         this.addressLevel = addressLevel;

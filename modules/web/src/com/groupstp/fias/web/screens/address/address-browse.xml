@@ -9,6 +9,7 @@
             <view extends="_local">
                 <property name="house" view="_minimal"/>
                 <property name="fiasEntity" fetch="BATCH" view="_minimal"/>
+                <property name="stead" view="_minimal"/>
             </view>
             <loader id="addressesDl">
                 <query>
@@ -23,10 +24,12 @@
                     <property name="housenum"/>
                 </property>
                 <property fetch="BATCH" name="fiasEntity" view="_minimal"/>
+                <property name="stead" view="_minimal"/>
             </view>
             <loader/>
             <collection id="houseDc" property="house"/>
             <collection id="fiasEntityDc" property="fiasEntity"/>
+            <collection id="steadDc" property="stead"/>
         </instance>
     </data>
     <actions>
@@ -58,7 +61,7 @@
                     </columns>
                     <rowsCount/>
                     <buttonsPanel id="buttonsPanel"
-                                  alwaysVisible="true" >
+                                  alwaysVisible="true">
                         <button id="createBtn" action="table.create"/>
                         <button id="editBtn" action="table.edit"/>
                         <button id="removeBtn" action="table.remove"/>
@@ -66,6 +69,7 @@
                         <button id="excelBtn" action="table.excel"/>
                         <button id="normalizeBtn" caption="msg://normalizeBtn.caption"/>
                     </buttonsPanel>
+                    <rowsCount autoLoad="true"/>
                 </groupTable>
                 <hbox id="lookupActions" spacing="true" visible="false">
                     <button action="lookupSelectAction"/>
@@ -73,15 +77,16 @@
                 </hbox>
             </vbox>
             <vbox id="editBox" height="100%" margin="false,false,false,true" expand="tabSheetBox" spacing="true">
-                <vbox id="tabSheetBox">
+                <vbox id="tabSheetBox" expand="tabSheet">
                     <tabSheet id="tabSheet" height="100%">
-                        <tab id="mainTab" caption="msg://address.editorMainTab.caption" margin="true">
+                        <tab id="mainTab" caption="msg://address.editorMainTab.caption" margin="true"
+                             expand="fieldGroupBox">
                             <scrollBox id="fieldGroupBox"
                                        height="100%">
-                                <form id="form" dataContainer="addressDc">
-                                    <column width="350px">
+                                <form id="form" dataContainer="addressDc" width="100%" height="100%">
+                                    <column width="100%">
                                         <textField id="srcAddressField" property="srcAddress"/>
-                                        <textField id="normAddressField" property="normAddress"/>
+                                        <textArea id="normAddressField" property="normAddress" height="100%"/>
                                     </column>
                                 </form>
                             </scrollBox>
@@ -99,6 +104,22 @@
                                 <buttonsPanel>
                                     <button action="houseTable.add"/>
                                     <button action="houseTable.exclude"/>
+                                </buttonsPanel>
+                            </table>
+                        </tab>
+                        <tab id='steadTab' caption='msg://com.groupstp.fias.entity/Address.stead'
+                             margin='true,false,false,false'>
+                            <table id="steadTable" dataContainer="steadDc" width="100%" height="200px">
+                                <actions>
+                                    <action id="add" type="add"/>
+                                    <action id="exclude" type="exclude"/>
+                                </actions>
+                                <columns>
+                                    <column id="number"/>
+                                </columns>
+                                <buttonsPanel>
+                                    <button action="steadTable.add"/>
+                                    <button action="steadTable.exclude"/>
                                 </buttonsPanel>
                             </table>
                         </tab>

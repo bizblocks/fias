@@ -3,7 +3,8 @@ package com.groupstp.fias.service;
 import com.groupstp.fias.entity.*;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.DataManager;
-import org.apache.commons.math3.analysis.function.Add;
+import com.haulmont.cuba.core.global.LoadContext;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 @Service(NormService.NAME)
 public class NormServiceBean implements NormService {
 
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(NormServiceBean.class);
     @Inject
     private DataManager dataManager;
 
@@ -29,7 +31,6 @@ public class NormServiceBean implements NormService {
             put(8, Street.class);
             put(9, Stead.class);
             put(10 , House.class);
-
         }
     };
 
@@ -49,38 +50,83 @@ public class NormServiceBean implements NormService {
         //тип - компонент
         Map<Integer, Integer> types = new HashMap<>();
         for(int j=0; j<components.length;j++) {
+            components[j] = components[j].trim();
             for (int i = 1; i < levels.size()+1; i++) {
                 if (types.containsKey(i))
                     continue;
                 String component = components[j].trim();
                 int finalI = i;
                 int finalJ = j;
-                Arrays.stream(component.split(" ")).forEach(token -> {
-                    if (checkLevel(token, levels.get(finalI).getSimpleName())) {
-                        types.put(finalI, finalJ);
-                        components[finalJ] = components[finalJ].replace(token, "").trim();
-                        lastType.set(finalI);
-                    }
-                });
+                String[] tokens = component.split(" ");
+                if(tokens.length==1 && component.indexOf(".")>0) {
+                    tokens = component.replace(".", ". ").split(" ");
+                }
+                if(tokens.length>1) {
+                    String[] finalTokens = tokens;
+                    Arrays.stream(tokens).forEach(token -> {
+                        if (checkLevel(token, levels.get(finalI).getSimpleName())) {
+                            types.put(finalI, finalJ);
+                            String componentWithoutToken = String.join(" ", Arrays.stream(finalTokens).filter(s -> s!=token).collect(Collectors.toList()));
+                            components[finalJ] = componentWithoutToken.trim();
+                        }
+                    });
+                }
                 if (types.containsKey(i)) {
                     break;
                 }
             }
         }
 
+        log.info("-------------------------------------------------");
+        log.info(srcAddress);
+        log.info("found types {}", types);
+
         List<Entity> parents = new ArrayList<>();
         types.keySet().stream().sorted().forEach(type -> {
             final List<Entity> entities = new ArrayList<>();
-            if(parents.size()==0)
-                entities.addAll(findByNameTypeAndParent(components[types.get(type)], levels.get(type), null));
-            else
-                if(type==10)
-                    parents.forEach(p-> entities.addAll(findHouse(components[types.get(type)], (FiasEntity) p)));
-                else if (type==9);
+            if(parents.size()==0) {
+                if (type < 9)
+                    entities.addAll(findByNameTypeAndParent(components[types.get(type)], levels.get(type), null));
                 else
-                    parents.forEach(p-> entities.addAll(findByNameTypeAndParent(components[types.get(type)], levels.get(type), (FiasEntity) p)));
+                    return;
+            }
+            else {
+                if (type == 10)
+                    parents.forEach(p -> entities.addAll(findHouseOrStead(components[types.get(type)], (FiasEntity) p)));
+                else
+                    parents.forEach(p -> entities.addAll(findByNameTypeAndParent(components[types.get(type)], levels.get(type), (FiasEntity) p)));
+            }
+            if (entities.size()==0)
+                return;
+
+            lastType.set(type);
+
             parents.clear();
             parents.addAll(new ArrayList<>(new HashSet<>(entities)));
+            log.info("found components of type {}", levels.get(type).getSimpleName());
+            parents.forEach(p->log.info(p.getInstanceName()));
+            //если у следующей компоненты нет типа
+            int nc = types.get(type)+1;
+            while (components.length>nc-1 && !types.containsValue(nc)) {
+                for(int i=type+1;i<levels.size()+1;i++) {
+                    int finalNc = nc;
+                    int finalI = i;
+                    entities.clear();
+                    if(i<9)
+                        parents.forEach(p->entities.addAll(findByNameTypeAndParent(components[finalNc], levels.get(finalI), (FiasEntity) p)));
+                    else
+                        parents.forEach(p->entities.addAll(findHouseOrStead(components[finalNc], (FiasEntity) p)));
+                    if(entities.size()>0) {
+                        parents.clear();
+                        parents.addAll(new ArrayList<>(new HashSet<>(entities)));
+                        log.info("found components of type {} by name", levels.get(i).getSimpleName());
+                        parents.forEach(p->log.info(p.getInstanceName()));
+                        lastType.set(i);
+                        break;
+                    }
+                }
+                nc++;
+            }
         });
 
         if(parents.size()>0) {
@@ -96,44 +142,78 @@ public class NormServiceBean implements NormService {
             final List<House> houses = new ArrayList<>();
             parents.forEach(entity -> { if (entity.getClass().equals(House.class)) houses.add((House) entity); });
             address.setHouse(houses);
+
+            final List<Stead> steads = new ArrayList<>();
+            parents.forEach(entity -> {if(entity.getClass().equals(Stead.class)) steads.add((Stead) entity); });
+            address.setStead(steads);
+
             final List<FiasEntity> entities = new ArrayList<>();
-            parents.forEach(entity -> { if (entity instanceof FiasEntity && !(entity instanceof House)) entities.add((FiasEntity) entity);});
+            parents.forEach(entity -> { if (entity instanceof FiasEntity) entities.add((FiasEntity) entity);});
             address.setFiasEntity(entities);
             if(houses.size()>0)
-                address.setNormAddress(constructAddress(houses, components, types.get(9)));
+                address.setNormAddress(constructAddress(houses, components, types.get(10)));
+            else if(steads.size()>0)
+                address.setNormAddress(constructAddress(steads, components, types.get(10)));
             else
-                address.setNormAddress(constructAddress(entities, components, types.get(lastType)));
-            System.out.println(address.getNormAddress());
+                address.setNormAddress(constructAddress(entities, components, types.get(lastType.get())));
+            log.info(address.getNormAddress());
             dataManager.commit(address);
             return address;
         }
-
         return null;
     }
 
-    private List<House> findHouse(String component, FiasEntity p) {
-        List<House> entities = dataManager.load(House.class)
-                .query("e.housenum like ?1 and e.parentAdm=?2", component, p)
-                .list();
-        entities.addAll(dataManager.load(House.class)
-                        .query("e.housenum like ?1 and e.parentMun=?2", component, p)
-                        .list());
+    private List<Entity> findHouseOrStead(String component, FiasEntity p) {
+        List entities = new ArrayList();
+        for (String variant:
+             numVariants(component)) {
+            entities.addAll(dataManager.loadList(LoadContext.create(House.class).
+                    setQuery(LoadContext.createQuery("select e from fias_House e where lower(e.housenum) like lower(:housenum) and e.parentAdm=:parent")
+                            .setParameter("housenum", variant)
+                            .setParameter("parent", p)
+                            .setCacheable(true))));
+            entities.addAll(dataManager.loadList(LoadContext.create(House.class).
+                    setQuery(LoadContext.createQuery("select e from fias_House e where lower(e.housenum) like lower(:housenum) and e.parentMun=:parent")
+                            .setParameter("housenum", variant)
+                            .setParameter("parent", p)
+                            .setCacheable(true))));
+            if(entities.size()==0) {
+                entities = dataManager.loadList(LoadContext.create(Stead.class).
+                        setQuery(LoadContext.createQuery("select e from fias_Stead e where lower(e.number) like lower(:number) and e.parentAdm=:parent")
+                                .setParameter("number", variant)
+                                .setParameter("parent", p)
+                                .setCacheable(true)));
+                entities.addAll(dataManager.loadList(LoadContext.create(Stead.class).
+                        setQuery(LoadContext.createQuery("select e from fias_Stead e where lower(e.number) like lower(:number) and e.parentMun=:parent")
+                                .setParameter("number", variant)
+                                .setParameter("parent", p)
+                                .setCacheable(true))));
+            }
+            if(entities.size()>0)
+                return entities;
+        }
         return entities;
     }
 
 
+    Map<String, String> tags = new HashMap<>();
+
     boolean checkLevel(String token, String type) {
-        return dataManager.load(DivisionTag.class)
-                .query("e.type=?1 and e.tag=?2", type, token.trim())
-                .list()
-                .size()>0;
+        token = token.trim().toLowerCase();
+        if(tags.containsKey(token+type))
+            return true;
+        List<DivisionTag> divisionTags = dataManager.load(DivisionTag.class)
+                .query("e.type=?1 and lower(e.tag)=lower(?2)", type, token.trim())
+                .list();
+        divisionTags.forEach(t->tags.put(t.getTag().toLowerCase()+t.getType(), t.getType()));
+        return divisionTags.size()>0;
     }
 
 
     List<String> determineComponentType(String component) {
         List<String> types = new ArrayList<>();
         //пробуем искать тип компонента адреса по ризнаку: г, обл и т.п.
-        dataManager.loadValues("select e.type from fias_DivisionTag e where e.tag=:tag")
+        dataManager.loadValues("select e.type from fias_DivisionTag e where lower(e.tag)=lower(:tag)")
                 .properties("type")
                 .parameter("tag", component)
                 .list().stream()
@@ -150,9 +230,11 @@ public class NormServiceBean implements NormService {
     }
 
     private List<FiasEntity> findByNameAndType(String name, Class clazz) {
-        List<FiasEntity> entities = dataManager.load(clazz)
-                .query("e.name=?1", name)
-                .list();
+        List<FiasEntity> entities = dataManager.loadList(
+                LoadContext.create(clazz).setQuery(
+                        LoadContext.createQuery("select e from fias_"+clazz.getSimpleName()+" e where lower(e.name)=lower(:name)")
+                        .setParameter("name", name)
+                        .setCacheable(true)));
         if(entities.size()>0)
             return entities;
         //нечёткий поиск
@@ -162,9 +244,11 @@ public class NormServiceBean implements NormService {
                 _chars[i] = '_';
                 _chars[j] = '_';
                 String _name = new String(_chars);
-                entities.addAll(dataManager.load(clazz)
-                        .query("e.name like ?1", _name)
-                        .list());
+                entities.addAll(dataManager.loadList(
+                        LoadContext.create(clazz).setQuery(
+                            LoadContext.createQuery("select e from fias_"+clazz.getSimpleName()+" e where lower(e.name) like lower(:name)")
+                                .setParameter("name", name)
+                                .setCacheable(true))));
             }
         }
         return entities;
@@ -172,33 +256,43 @@ public class NormServiceBean implements NormService {
 
     private List<FiasEntity> findByNameTypeAndParent(String name, Class clazz, FiasEntity parent) {
         String query = "select e from fias_"+clazz.getSimpleName()+" e";
+        List<FiasEntity> entities = new ArrayList<>();
         if(parent!=null) {
             //чёткий поиск
             List<String> variants = nameVariants(name);
             for (String variant: variants) {
                 String join = " join e";
-                for(int i = reverse.get(parent.getClass());i<reverse.get(clazz)-1;i++) {
+                for(int i = reverse.get(parent.getClass());i<reverse.get(clazz);i++) {
                     join += ".parent";
-                    List<FiasEntity> entities = dataManager.load(clazz)
-                            .query(query + join.replace("parent", "parentAdm") +
-                                    " p where p=:parent and e.name like :name")
-                            .parameter("name", variant)
-                            .parameter("parent", parent)
-                            .list();
-                    entities.addAll(dataManager.load(clazz)
-                            .query(query + join.replace("parent", "parentMun") +
-                                    " p where p=:parent and e.name like :name")
-                            .parameter("name", variant)
-                            .parameter("parent", parent)
-                            .list());
-                    if (entities.size() > 0)
+                    entities.addAll(dataManager.loadList(LoadContext.create(clazz).setQuery(LoadContext.createQuery((query + join.replace("parent", "parentAdm") +
+                            " p where p=:parent and lower(e.name) like lower(:name)"))
+                            .setParameter("name", variant)
+                            .setParameter("parent", parent)
+                            .setCacheable(true))));
+                    entities.addAll(dataManager.loadList(LoadContext.create(clazz).setQuery(LoadContext.createQuery((query + join.replace("parent", "parentMun") +
+                                    " p where p=:parent and lower(e.name) like lower(:name)"))
+                            .setParameter("name", variant)
+                            .setParameter("parent", parent)
+                            .setCacheable(true))));
+                    if (entities.size() > 0 && !variant.matches(".*(\\d+).*"))
                         return entities;
                 }
             }
         } else {
             return findByNameAndType(name, clazz);
         }
-        return new ArrayList<>();
+        return entities;
+    }
+
+    List<String> numVariants(String num) {
+        List<String> variants = new ArrayList<>();
+        variants.add(num);
+
+        variants.add(num.replaceAll("-", "")
+                .replaceAll(" ", "")
+                .replaceAll("\"", ""));
+
+        return variants;
     }
 
     List<String> nameVariants(String name) {
@@ -210,8 +304,12 @@ public class NormServiceBean implements NormService {
             for (int i = 0; i < name.length(); i++) {
                 for (int j = i; j < name.length(); j++) {
                     char[] _chars = name.toCharArray();
-                    _chars[i] = '_';
-                    _chars[j] = '_';
+                    if(!Character.isDigit(_chars[i]))
+                        _chars[i] = '_';
+                    if(!Character.isDigit(_chars[j]))
+                        _chars[j] = '_';
+                    if(Character.isDigit(_chars[i]) && Character.isDigit(_chars[j]))
+                        continue;
                     String _name = new String(_chars);
                     variants.add(_name);
                 }
@@ -220,11 +318,25 @@ public class NormServiceBean implements NormService {
 
         //-й -я для числительных
         if(name.matches(".*(\\d+).*")) {
-            variants.add(name.replaceAll("(\\d+)", "$1-й"));
-            variants.add(name.replaceAll("(\\d+)", "$1-я"));
-            variants.add(name.replaceAll("(\\d+)", "$1-ый"));
-            variants.add(name.replaceAll("(\\d+)", "$1-ой"));
-            variants.add(name.replaceAll("(\\d+)", "$1-ая"));
+            if(name.matches(".*(-й|-я|-ый|-ой|-ая).*")) {
+                variants.add(name.replaceAll("(-й|-я|-ый|-ой|-ая)", ""));
+                if(name.matches(".*(-й).*")) {
+                    variants.add(name.replaceAll("(\\d+)-й", "$1-ый"));
+                    variants.add(name.replaceAll("(\\d+)-й", "$1-ой"));
+                } else if (name.matches(".*(-ый|-ой).*")) {
+                    variants.add(name.replaceAll("(\\d+)-(-ый|-ой)", "$1-й"));
+                } else if (name.matches(".*(-я).*")) {
+                    variants.add(name.replaceAll("(\\d+)-я", "$1-ая"));
+                } else if (name.matches(".*(-ая).*")) {
+                    variants.add(name.replaceAll("(\\d+)-ая", "$1-я"));
+                }
+            } else {
+                variants.add(name.replaceAll("(\\d+)", "$1-й"));
+                variants.add(name.replaceAll("(\\d+)", "$1-я"));
+                variants.add(name.replaceAll("(\\d+)", "$1-ый"));
+                variants.add(name.replaceAll("(\\d+)", "$1-ой"));
+                variants.add(name.replaceAll("(\\d+)", "$1-ая"));
+            }
         }
 
         return variants;
@@ -235,12 +347,14 @@ public class NormServiceBean implements NormService {
         entities.forEach(e -> {
             List<String> addrAdm = new ArrayList<>();
             List<String> addrMun = new ArrayList<>();
-            Entity eAdm = (FiasEntity) e;
-            Entity eMun = (FiasEntity) e;
+            Entity eAdm = (Entity) e;
+            Entity eMun = (Entity) e;
             do {
                 eAdm = dataManager.reload(eAdm, "parent");
                 if(eAdm.getClass().equals(House.class)) {
                     addrAdm.add(0, "дом "+((House) eAdm).getHousenum());
+                } else if (eAdm.getClass().equals(Stead.class)) {
+                    addrAdm.add(0, "уч. "+((Stead) eAdm).getNumber());
                 } else {
                     addrAdm.add(0, eAdm.getValue("shortname")+" "+eAdm.getValue("offname"));
                 }
@@ -250,15 +364,17 @@ public class NormServiceBean implements NormService {
                 eMun = dataManager.reload(eMun, "parent");
                 if(eMun.getClass().equals(House.class)) {
                     addrMun.add(0, "дом "+((House) eMun).getHousenum());
+                } else if (eMun.getClass().equals(Stead.class)) {
+                    addrMun.add(0, "уч. "+((Stead) eMun).getNumber());
                 } else {
                     addrMun.add(0, eMun.getValue("shortname")+" "+eMun.getValue("offname"));
                 }
                 eMun = eMun.getValue("parentMun");
             } while(eMun!=null);
-            for(int c=lastComponent+1;c<components.length;c++) {
-                addrAdm.add(components[c].trim());
-                addrMun.add(components[c].trim());
-            }
+//            for(int c=lastComponent+1;c<components.length;c++) {
+//                addrAdm.add(components[c].trim());
+//                addrMun.add(components[c].trim());
+//            }
             str.add(String.join(", ", addrAdm));
             str.add(String.join(", ", addrMun));
         });

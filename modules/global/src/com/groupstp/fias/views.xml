@@ -62,7 +62,7 @@
                   view="_minimal"/>
         <property name="parentMun" view="_minimal"/>
     </view>
-    <view entity="fias_AdmRegions" name="parent" extends="_local">
+    <view entity="fias_AdmRegion" name="parent" extends="_local">
         <property name="parentAdm" view="_minimal"/>
         <property name="parentMun" view="_minimal"/>
     </view>
@@ -70,7 +70,7 @@
         <property name="parentAdm" view="_minimal"/>
         <property name="parentMun" view="_minimal"/>
     </view>
-    <view entity="fias_NumRegion" name="parent" extends="_local">
+    <view entity="fias_MunRegion" name="parent" extends="_local">
         <property name="parentAdm" view="_minimal"/>
         <property name="parentMun" view="_minimal"/>
     </view>
@@ -84,6 +84,7 @@
     </view>
     <view entity="fias_Address" name="full" extends="_local">
         <property name="house" view="_minimal"/>
+        <property name="stead" view="_minimal"/>
         <property name="fiasEntity" view="_minimal"/>
     </view>
     <view entity="fias_Stead" name="parent" extends="_local">

@@ -43,7 +43,9 @@ create table FIAS_ADDRESS (
     DELETED_BY varchar(50),
     --
     SRC_ADDRESS varchar(1024) not null,
-    NORM_ADDRESS varchar(1024),
+    NORM_ADDRESS text,
+    HOUSECOUNTER integer,
+    STEADCOUNTER integer,
     --
     primary key (ID)
 )^
@@ -131,7 +133,18 @@ create table FIAS_HOUSE (
     OKTMO varchar(11),
     ISACTUAL boolean,
     ISACTIVE boolean,
+    ADDRESS_LEVEL integer,
+    STARTDATE date,
+    ENDDATE date,
+    UPDATEDATE date,
     --
     primary key (ID)
 )^
 -- end FIAS_HOUSE
+-- begin FIAS_ADDRESS_STEAD_LINK
+create table FIAS_ADDRESS_STEAD_LINK (
+    STEAD_ID uuid,
+    ADDRESS_ID uuid,
+    primary key (STEAD_ID, ADDRESS_ID)
+)^
+-- end FIAS_ADDRESS_STEAD_LINK

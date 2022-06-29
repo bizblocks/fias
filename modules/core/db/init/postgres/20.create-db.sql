@@ -36,3 +36,7 @@ create unique index IDX_FIAS_HOUSE_UK_GAR_ID on FIAS_HOUSE (GAR_ID) where DELETE
 create index IDX_FIAS_HOUSE_PARENT_ADM on FIAS_HOUSE (PARENT_ADM_ID)^
 create index IDX_FIAS_HOUSE_PARENT_MUN on FIAS_HOUSE (PARENT_MUN_ID)^
 -- end FIAS_HOUSE
+-- begin FIAS_ADDRESS_STEAD_LINK
+alter table FIAS_ADDRESS_STEAD_LINK add constraint FK_ADDSTE_STEAD foreign key (STEAD_ID) references FIAS_STEAD(ID)^
+alter table FIAS_ADDRESS_STEAD_LINK add constraint FK_ADDSTE_ADDRESS foreign key (ADDRESS_ID) references FIAS_ADDRESS(ID)^
+-- end FIAS_ADDRESS_STEAD_LINK

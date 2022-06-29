@@ -18,7 +18,8 @@ public class Address extends StandardEntity {
     @Column(name = "SRC_ADDRESS", nullable = false, unique = true, length = 1024)
     protected String srcAddress;
 
-    @Column(name = "NORM_ADDRESS", length = 1024)
+    @Column(name = "NORM_ADDRESS")
+    @Lob
     protected String normAddress;
 
     @ManyToMany
@@ -34,6 +35,43 @@ public class Address extends StandardEntity {
     @OnDelete(DeletePolicy.DENY)
     @ManyToMany
     protected List<FiasEntity> fiasEntity;
+
+    @OnDeleteInverse(DeletePolicy.CASCADE)
+    @ManyToMany
+    @JoinTable(name = "FIAS_ADDRESS_STEAD_LINK",
+            joinColumns = @JoinColumn(name = "ADDRESS_ID"),
+            inverseJoinColumns = @JoinColumn(name = "STEAD_ID"))
+    protected List<Stead> stead;
+
+    @Column(name = "HOUSECOUNTER")
+    protected Integer houseCounter;
+
+    @Column(name = "STEADCOUNTER")
+    protected Integer steadCounter;
+
+    public Integer getSteadCounter() {
+        return steadCounter;
+    }
+
+    public void setSteadCounter(Integer steadCounter) {
+        this.steadCounter = steadCounter;
+    }
+
+    public Integer getHouseCounter() {
+        return houseCounter;
+    }
+
+    public void setHouseCounter(Integer houseCounter) {
+        this.houseCounter = houseCounter;
+    }
+
+    public void setStead(List<Stead> stead) {
+        this.stead = stead;
+    }
+
+    public List<Stead> getStead() {
+        return stead;
+    }
 
     public List<FiasEntity> getFiasEntity() {
         return fiasEntity;
