@@ -21,7 +21,7 @@ public class NormServiceBean implements NormService {
     @Inject
     private DataManager dataManager;
 
-    private static final Map<Integer, Class<?>> levels = new HashMap<Integer, Class<?>>() {
+    private static final HashMap<Integer, Class<? extends StandardEntity>> levels = new HashMap<Integer, Class<? extends StandardEntity>>() {
         {
             put(1, Region.class);
             put(2, AdmRegion.class);
@@ -32,7 +32,7 @@ public class NormServiceBean implements NormService {
             put(7, PlanningStructure.class);
             put(8, Street.class);
             put(9, Stead.class);
-            put(10 , House.class);
+            put(10, House.class);
         }
     };
 
@@ -90,7 +90,7 @@ public class NormServiceBean implements NormService {
             final List<StandardEntity> entities = new ArrayList<>();
             if(parents.size()==0) {
                 if (type < 9)
-                    entities.addAll(findByNameTypeAndParent(components[types.get(type)], (Class<? extends FiasEntity>) levels.get(type), null));
+                    entities.addAll(findByNameTypeAndParent(components[types.get(type)], levels.get(type), null));
                 else
                     return;
             }
@@ -98,7 +98,7 @@ public class NormServiceBean implements NormService {
                 if (type == 10)
                     parents.forEach(p -> entities.addAll(findHouseOrStead(components[types.get(type)], (FiasEntity) p)));
                 else
-                    parents.forEach(p -> entities.addAll(findByNameTypeAndParent(components[types.get(type)], (Class<? extends FiasEntity>) levels.get(type), (FiasEntity) p)));
+                    parents.forEach(p -> entities.addAll(findByNameTypeAndParent(components[types.get(type)], levels.get(type), (FiasEntity) p)));
             }
             if (entities.size()==0)
                 return;
@@ -117,7 +117,7 @@ public class NormServiceBean implements NormService {
                     int finalI = i;
                     entities.clear();
                     if(i<9)
-                        parents.forEach(p->entities.addAll(findByNameTypeAndParent(components[finalNc], (Class<? extends FiasEntity>) levels.get(finalI), (FiasEntity) p)));
+                        parents.forEach(p->entities.addAll(findByNameTypeAndParent(components[finalNc], levels.get(finalI), (FiasEntity) p)));
                     else
                         parents.forEach(p->entities.addAll(findHouseOrStead(components[finalNc], (FiasEntity) p)));
                     if(entities.size()>0) {
@@ -233,12 +233,12 @@ public class NormServiceBean implements NormService {
         return types;
     }
 
-    List<FiasEntity> findByName(String name) {
+    List<StandardEntity> findByName(String name) {
         return findByNameAndType(name, FiasEntity.class);
     }
 
-    private List<FiasEntity> findByNameAndType(String name,  Class<? extends FiasEntity> clazz) {
-        List<FiasEntity> entities = new ArrayList<>(dataManager.loadList(
+    private List<StandardEntity> findByNameAndType(String name,  Class<? extends StandardEntity> clazz) {
+        List<StandardEntity> entities = new ArrayList<>(dataManager.loadList(
                 LoadContext.create(clazz).setQuery(
                         LoadContext.createQuery("select e from fias_" + clazz.getSimpleName() + " e where lower(e.name)=lower(:name)")
                                 .setParameter("name", name)
@@ -262,9 +262,9 @@ public class NormServiceBean implements NormService {
         return entities;
     }
 
-    private List<FiasEntity> findByNameTypeAndParent(String name, Class<? extends FiasEntity> clazz, FiasEntity parent) {
+    private List<StandardEntity> findByNameTypeAndParent(String name, Class<? extends StandardEntity> clazz, FiasEntity parent) {
         String query = "select e from fias_"+clazz.getSimpleName()+" e";
-        List<FiasEntity> entities = new ArrayList<>();
+        List<StandardEntity> entities = new ArrayList<>();
         if(parent!=null) {
             //чёткий поиск
             List<String> variants = nameVariants(name);
