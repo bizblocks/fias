@@ -1,10 +1,12 @@
 package com.groupstp.fias.service;
 
 import com.groupstp.fias.entity.*;
-import com.haulmont.cuba.core.entity.Entity;
+import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.LoadContext;
+import com.haulmont.cuba.core.global.MetadataTools;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -15,11 +17,11 @@ import java.util.stream.Collectors;
 @Service(NormService.NAME)
 public class NormServiceBean implements NormService {
 
-    private static final Logger log = org.slf4j.LoggerFactory.getLogger(NormServiceBean.class);
+    private static final Logger log = LoggerFactory.getLogger(NormServiceBean.class);
     @Inject
     private DataManager dataManager;
 
-    private static final Map<Integer, Class> levels = new HashMap<Integer, Class>() {
+    private static final Map<Integer, Class<?>> levels = new HashMap<Integer, Class<?>>() {
         {
             put(1, Region.class);
             put(2, AdmRegion.class);
@@ -34,11 +36,13 @@ public class NormServiceBean implements NormService {
         }
     };
 
-    private static final Map<Class, Integer> reverse = new HashMap<Class, Integer>() {
+    private static final Map<Class<?>, Integer> reverse = new HashMap<Class<?>, Integer>() {
         {
             levels.forEach((k, v) -> put(v, k));
         }
     };
+    @Inject
+    private MetadataTools metadataTools;
 
     @Override
     public Address normalize(String srcAddress) {
@@ -66,7 +70,7 @@ public class NormServiceBean implements NormService {
                     Arrays.stream(tokens).forEach(token -> {
                         if (checkLevel(token, levels.get(finalI).getSimpleName())) {
                             types.put(finalI, finalJ);
-                            String componentWithoutToken = String.join(" ", Arrays.stream(finalTokens).filter(s -> s!=token).collect(Collectors.toList()));
+                            String componentWithoutToken = Arrays.stream(finalTokens).filter(s -> s.equals(token)).collect(Collectors.joining(" "));
                             components[finalJ] = componentWithoutToken.trim();
                         }
                     });
@@ -81,12 +85,12 @@ public class NormServiceBean implements NormService {
         log.info(srcAddress);
         log.info("found types {}", types);
 
-        List<Entity> parents = new ArrayList<>();
+        List<StandardEntity> parents = new ArrayList<>();
         types.keySet().stream().sorted().forEach(type -> {
-            final List<Entity> entities = new ArrayList<>();
+            final List<StandardEntity> entities = new ArrayList<>();
             if(parents.size()==0) {
                 if (type < 9)
-                    entities.addAll(findByNameTypeAndParent(components[types.get(type)], levels.get(type), null));
+                    entities.addAll(findByNameTypeAndParent(components[types.get(type)], (Class<? extends FiasEntity>) levels.get(type), null));
                 else
                     return;
             }
@@ -94,7 +98,7 @@ public class NormServiceBean implements NormService {
                 if (type == 10)
                     parents.forEach(p -> entities.addAll(findHouseOrStead(components[types.get(type)], (FiasEntity) p)));
                 else
-                    parents.forEach(p -> entities.addAll(findByNameTypeAndParent(components[types.get(type)], levels.get(type), (FiasEntity) p)));
+                    parents.forEach(p -> entities.addAll(findByNameTypeAndParent(components[types.get(type)], (Class<? extends FiasEntity>) levels.get(type), (FiasEntity) p)));
             }
             if (entities.size()==0)
                 return;
@@ -104,7 +108,7 @@ public class NormServiceBean implements NormService {
             parents.clear();
             parents.addAll(new ArrayList<>(new HashSet<>(entities)));
             log.info("found components of type {}", levels.get(type).getSimpleName());
-            parents.forEach(p->log.info(p.getInstanceName()));
+            parents.forEach(p->log.info(metadataTools.getInstanceName(p)));
             //если у следующей компоненты нет типа
             int nc = types.get(type)+1;
             while (components.length>nc-1 && !types.containsValue(nc)) {
@@ -113,14 +117,14 @@ public class NormServiceBean implements NormService {
                     int finalI = i;
                     entities.clear();
                     if(i<9)
-                        parents.forEach(p->entities.addAll(findByNameTypeAndParent(components[finalNc], levels.get(finalI), (FiasEntity) p)));
+                        parents.forEach(p->entities.addAll(findByNameTypeAndParent(components[finalNc], (Class<? extends FiasEntity>) levels.get(finalI), (FiasEntity) p)));
                     else
                         parents.forEach(p->entities.addAll(findHouseOrStead(components[finalNc], (FiasEntity) p)));
                     if(entities.size()>0) {
                         parents.clear();
                         parents.addAll(new ArrayList<>(new HashSet<>(entities)));
                         log.info("found components of type {} by name", levels.get(i).getSimpleName());
-                        parents.forEach(p->log.info(p.getInstanceName()));
+                        parents.forEach(p->log.info(metadataTools.getInstanceName(p)));
                         lastType.set(i);
                         break;
                     }
@@ -151,11 +155,11 @@ public class NormServiceBean implements NormService {
             parents.forEach(entity -> { if (entity instanceof FiasEntity) entities.add((FiasEntity) entity);});
             address.setFiasEntity(entities);
             if(houses.size()>0)
-                address.setNormAddress(constructAddress(houses, components, types.get(10)));
+                address.setNormAddress(constructAddress(new ArrayList<>(houses), components, types.get(10)));
             else if(steads.size()>0)
-                address.setNormAddress(constructAddress(steads, components, types.get(10)));
+                address.setNormAddress(constructAddress(new ArrayList<>(steads), components, types.get(10)));
             else
-                address.setNormAddress(constructAddress(entities, components, types.get(lastType.get())));
+                address.setNormAddress(constructAddress(new ArrayList<>(entities), components, types.get(lastType.get())));
             log.info(address.getNormAddress());
             dataManager.commit(address);
             return address;
@@ -163,31 +167,35 @@ public class NormServiceBean implements NormService {
         return null;
     }
 
-    private List<Entity> findHouseOrStead(String component, FiasEntity p) {
-        List entities = new ArrayList();
+    private List<StandardEntity> findHouseOrStead(String component, FiasEntity p) {
+        List<StandardEntity> entities = new ArrayList<>();
         for (String variant:
              numVariants(component)) {
             entities.addAll(dataManager.loadList(LoadContext.create(House.class).
                     setQuery(LoadContext.createQuery("select e from fias_House e where lower(e.housenum) like lower(:housenum) and e.parentAdm=:parent")
                             .setParameter("housenum", variant)
                             .setParameter("parent", p)
-                            .setCacheable(true))));
+                            .setCacheable(true))
+                    .setView("parent")));
             entities.addAll(dataManager.loadList(LoadContext.create(House.class).
                     setQuery(LoadContext.createQuery("select e from fias_House e where lower(e.housenum) like lower(:housenum) and e.parentMun=:parent")
                             .setParameter("housenum", variant)
                             .setParameter("parent", p)
-                            .setCacheable(true))));
+                            .setCacheable(true))
+                    .setView("parent")));
             if(entities.size()==0) {
-                entities = dataManager.loadList(LoadContext.create(Stead.class).
+                entities.addAll(dataManager.loadList(LoadContext.create(Stead.class).
                         setQuery(LoadContext.createQuery("select e from fias_Stead e where lower(e.number) like lower(:number) and e.parentAdm=:parent")
                                 .setParameter("number", variant)
                                 .setParameter("parent", p)
-                                .setCacheable(true)));
+                                .setCacheable(true))
+                        .setView("parent")));
                 entities.addAll(dataManager.loadList(LoadContext.create(Stead.class).
                         setQuery(LoadContext.createQuery("select e from fias_Stead e where lower(e.number) like lower(:number) and e.parentMun=:parent")
                                 .setParameter("number", variant)
                                 .setParameter("parent", p)
-                                .setCacheable(true))));
+                                .setCacheable(true))
+                        .setView("parent")));
             }
             if(entities.size()>0)
                 return entities;
@@ -216,7 +224,7 @@ public class NormServiceBean implements NormService {
         dataManager.loadValues("select e.type from fias_DivisionTag e where lower(e.tag)=lower(:tag)")
                 .properties("type")
                 .parameter("tag", component)
-                .list().stream()
+                .list()
                 .forEach(kve -> types.add(kve.getValue("type")));
         //если не нашли - ищем по наименованию
 //        if(types.size()==0) {
@@ -229,12 +237,12 @@ public class NormServiceBean implements NormService {
         return findByNameAndType(name, FiasEntity.class);
     }
 
-    private List<FiasEntity> findByNameAndType(String name, Class clazz) {
-        List<FiasEntity> entities = dataManager.loadList(
+    private List<FiasEntity> findByNameAndType(String name,  Class<? extends FiasEntity> clazz) {
+        List<FiasEntity> entities = new ArrayList<>(dataManager.loadList(
                 LoadContext.create(clazz).setQuery(
-                        LoadContext.createQuery("select e from fias_"+clazz.getSimpleName()+" e where lower(e.name)=lower(:name)")
-                        .setParameter("name", name)
-                        .setCacheable(true)));
+                        LoadContext.createQuery("select e from fias_" + clazz.getSimpleName() + " e where lower(e.name)=lower(:name)")
+                                .setParameter("name", name)
+                                .setCacheable(true))));
         if(entities.size()>0)
             return entities;
         //нечёткий поиск
@@ -247,33 +255,36 @@ public class NormServiceBean implements NormService {
                 entities.addAll(dataManager.loadList(
                         LoadContext.create(clazz).setQuery(
                             LoadContext.createQuery("select e from fias_"+clazz.getSimpleName()+" e where lower(e.name) like lower(:name)")
-                                .setParameter("name", name)
+                                .setParameter("name", _name)
                                 .setCacheable(true))));
             }
         }
         return entities;
     }
 
-    private List<FiasEntity> findByNameTypeAndParent(String name, Class clazz, FiasEntity parent) {
+    private List<FiasEntity> findByNameTypeAndParent(String name, Class<? extends FiasEntity> clazz, FiasEntity parent) {
         String query = "select e from fias_"+clazz.getSimpleName()+" e";
         List<FiasEntity> entities = new ArrayList<>();
         if(parent!=null) {
             //чёткий поиск
             List<String> variants = nameVariants(name);
             for (String variant: variants) {
-                String join = " join e";
+                StringBuilder join = new StringBuilder(" join e");
                 for(int i = reverse.get(parent.getClass());i<reverse.get(clazz);i++) {
-                    join += ".parent";
-                    entities.addAll(dataManager.loadList(LoadContext.create(clazz).setQuery(LoadContext.createQuery((query + join.replace("parent", "parentAdm") +
+                    join.append(".parent");
+                    entities.addAll(dataManager.loadList(LoadContext.create(clazz).setQuery(LoadContext.createQuery((query + join.toString().replace("parent", "parentAdm") +
                             " p where p=:parent and lower(e.name) like lower(:name)"))
                             .setParameter("name", variant)
                             .setParameter("parent", parent)
-                            .setCacheable(true))));
-                    entities.addAll(dataManager.loadList(LoadContext.create(clazz).setQuery(LoadContext.createQuery((query + join.replace("parent", "parentMun") +
+                            .setCacheable(true))
+                        .setView("parent")));
+                    entities.addAll(dataManager.loadList(LoadContext.create(clazz).setQuery(LoadContext.createQuery((query + join.toString().replace("parent", "parentMun") +
                                     " p where p=:parent and lower(e.name) like lower(:name)"))
                             .setParameter("name", variant)
                             .setParameter("parent", parent)
-                            .setCacheable(true))));
+                            .setCacheable(true))
+                        .setView("parent")));
+
                     if (entities.size() > 0 && !variant.matches(".*(\\d+).*"))
                         return entities;
                 }
@@ -286,13 +297,14 @@ public class NormServiceBean implements NormService {
 
     List<String> numVariants(String num) {
         List<String> variants = new ArrayList<>();
+
         variants.add(num);
 
         variants.add(num.replaceAll("-", "")
                 .replaceAll(" ", "")
                 .replaceAll("\"", ""));
 
-        return variants;
+        return variants.stream().distinct().collect(Collectors.toList());
     }
 
     List<String> nameVariants(String name) {
@@ -342,15 +354,16 @@ public class NormServiceBean implements NormService {
         return variants;
     }
 
-    private String constructAddress(List entities, String[] components, Integer lastComponent) {
+    private String constructAddress(List<StandardEntity> entities, String[] components, Integer lastComponent) {
         List<String> str = new ArrayList<>();
         entities.forEach(e -> {
             List<String> addrAdm = new ArrayList<>();
             List<String> addrMun = new ArrayList<>();
-            Entity eAdm = (Entity) e;
-            Entity eMun = (Entity) e;
+            StandardEntity eAdm = e;
+            StandardEntity eMun = e;
             do {
-                eAdm = dataManager.reload(eAdm, "parent");
+                Long garId = eAdm.getValue("garId");
+                eAdm = dataManager.load(eAdm.getClass()).view("parent").query("e.garId=?1", garId).one();
                 if(eAdm.getClass().equals(House.class)) {
                     addrAdm.add(0, "дом "+((House) eAdm).getHousenum());
                 } else if (eAdm.getClass().equals(Stead.class)) {
@@ -361,7 +374,8 @@ public class NormServiceBean implements NormService {
                 eAdm = eAdm.getValue("parentAdm");
             } while (eAdm!=null);
             do {
-                eMun = dataManager.reload(eMun, "parent");
+                Long garId = eMun.getValue("garId");
+                eMun = dataManager.load(eMun.getClass()).view("parent").query("e.garId=?1", garId).one();
                 if(eMun.getClass().equals(House.class)) {
                     addrMun.add(0, "дом "+((House) eMun).getHousenum());
                 } else if (eMun.getClass().equals(Stead.class)) {

@@ -1,38 +1,36 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
         caption="msg://editorCaption"
-        class="com.groupstp.fias.web.house.HouseEdit"
-        datasource="houseDs"
-        focusComponent="fieldGroup"
-        messagesPack="com.groupstp.fias.web.house">
-    <dsContext>
-        <datasource id="houseDs"
+        focusComponent="form"
+        messagesPack="com.groupstp.fias.web.screens.house">
+    <data>
+        <instance id="houseDc"
                     class="com.groupstp.fias.entity.House"
-                    view="parent"/>
-    </dsContext>
+                  view="parent">
+            <loader/>
+        </instance>
+    </data>
     <dialogMode height="600"
                 width="800"/>
     <layout expand="windowActions"
             spacing="true">
-        <fieldGroup id="fieldGroup"
-                    datasource="houseDs">
-            <column width="250px">
-                <field property="eststatus"/>
+        <form id="form" dataContainer="houseDc">
+            <column width="350px">
+                <field property="housenum"/>
                 <field property="buildnum"/>
                 <field property="strucnum"/>
-                <field property="strstatus"/>
                 <field property="startdate"/>
                 <field property="enddate"/>
                 <field property="parentAdm"/>
+                <field property="parentMun"/>
                 <field property="postalcode"/>
                 <field property="ifnsfl"/>
                 <field property="terrifnsul"/>
                 <field property="ifnsul"/>
                 <field property="okato"/>
                 <field property="oktmo"/>
-                <field property="housenum"/>
             </column>
-        </fieldGroup>
+        </form>
         <frame id="windowActions"
                screen="editWindowActions"/>
     </layout>

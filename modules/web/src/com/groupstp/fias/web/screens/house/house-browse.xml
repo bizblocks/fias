@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
         caption="msg://browseCaption"
-        class="com.groupstp.fias.web.house.HouseBrowse"
+        class="com.groupstp.fias.web.screens.house.HouseBrowse"
         focusComponent="housesTable"
         lookupComponent="housesTable"
-        messagesPack="com.groupstp.fias.web.house">
+        messagesPack="com.groupstp.fias.web.screens.house">
     <dsContext>
         <groupDatasource id="housesDs"
                          class="com.groupstp.fias.entity.House"
@@ -31,10 +31,8 @@
                 <action id="remove"/>
             </actions>
             <columns>
-                <column id="eststatus"/>
                 <column id="buildnum"/>
                 <column id="strucnum"/>
-                <column id="strstatus"/>
                 <column id="startdate"/>
                 <column id="enddate"/>
                 <column id="parentAdm"

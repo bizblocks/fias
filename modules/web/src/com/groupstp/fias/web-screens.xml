@@ -5,9 +5,9 @@
     <screen id="fias$FiasEntity.browse"
             template="com/groupstp/fias/web/fiasentity/fias-entity-browse.xml"/>
     <screen id="fias$House.browse"
-            template="com/groupstp/fias/web/house/house-browse.xml"/>
+            template="/com/groupstp/fias/web/screens/house/house-browse.xml"/>
     <screen id="fias$House.edit"
-            template="com/groupstp/fias/web/house/house-edit.xml"/>
+            template="/com/groupstp/fias/web/screens/house/house-edit.xml"/>
     <screen id="fias$FiasEntity.edit"
             template="com/groupstp/fias/web/fiasentity/fias-entity-edit.xml"/>
     <screen id="fiasClientv2"
