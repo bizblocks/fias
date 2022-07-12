@@ -1,7 +1,7 @@
-Веб-приложения для работы с ГАР ФИАС.  
+Веб-приложение для работы с ГАР ФИАС.  
 Для сборки и запуска   
-./gradlew build setupTomcat createDb deploy start
-gradlew.bar build setupTomcat createDb deploy start
+./gradlew build setupTomcat createDb deploy start  
+gradlew.bat build setupTomcat createDb deploy start
 
 На текущий момент данные загружаются только по одному региону. Runtime свойство приложения fias.fias-service.path указывает на путь к распакованным данным региона. 
 
