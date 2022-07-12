@@ -93,6 +93,7 @@ configure(globalModule) {
     dependencies {
         //compile('org.meridor:fias-client:1.1-SNAPSHOT')
         compile(name: 'gar-client')
+        compile('javax.xml.bind:jaxb-api:2.3.1')
         if (!JavaVersion.current().isJava8()) {
             runtime('javax.xml.bind:jaxb-api:2.3.1')
             runtime('org.glassfish.jaxb:jaxb-runtime:2.3.1')
