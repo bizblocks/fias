@@ -1,5 +1,6 @@
 package com.groupstp.fias.entity;
 
+import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.entity.annotation.OnDelete;
 import com.haulmont.cuba.core.entity.annotation.OnDeleteInverse;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Table(name = "FIAS_ADDRESS")
 @Entity(name = "fias_Address")
+@NamePattern("%s|srcAddress")
 public class Address extends StandardEntity {
     private static final long serialVersionUID = 6928808408418198200L;
 
@@ -48,6 +50,17 @@ public class Address extends StandardEntity {
 
     @Column(name = "STEADCOUNTER")
     protected Integer steadCounter;
+
+    @Column(name = "CADASTRAL_NUMBER", length = 30)
+    protected String cadastralNumber;
+
+    public String getCadastralNumber() {
+        return cadastralNumber;
+    }
+
+    public void setCadastralNumber(String cadastralNumber) {
+        this.cadastralNumber = cadastralNumber;
+    }
 
     public Integer getSteadCounter() {
         return steadCounter;
