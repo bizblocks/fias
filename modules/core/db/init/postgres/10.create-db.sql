@@ -46,6 +46,7 @@ create table FIAS_ADDRESS (
     NORM_ADDRESS text,
     HOUSECOUNTER integer,
     STEADCOUNTER integer,
+    CADASTRAL_NUMBER varchar(30),
     --
     primary key (ID)
 )^
