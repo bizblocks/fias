@@ -70,7 +70,7 @@ public class NormServiceBean implements NormService {
                     Arrays.stream(tokens).forEach(token -> {
                         if (checkLevel(token, levels.get(finalI).getSimpleName())) {
                             types.put(finalI, finalJ);
-                            String componentWithoutToken = Arrays.stream(finalTokens).filter(s -> s.equals(token)).collect(Collectors.joining(" "));
+                            String componentWithoutToken = Arrays.stream(finalTokens).filter(s -> !s.equals(token)).collect(Collectors.joining(" "));
                             components[finalJ] = componentWithoutToken.trim();
                         }
                     });

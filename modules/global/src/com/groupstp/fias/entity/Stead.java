@@ -13,7 +13,10 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
-@Table(name = "FIAS_STEAD")
+@Table(name = "FIAS_STEAD", indexes = {
+        @Index(name = "IDX_FIAS_STEAD_NUMBER_PARENT_ADM", columnList = "NUMBER_, PARENT_ADM_ID"),
+        @Index(name = "IDX_FIAS_STEAD_NUMBER_PARENT_MUN", columnList = "NUMBER_, PARENT_MUN_ID")
+})
 @Entity(name = "fias_Stead")
 @NamePattern("%s|number")
 public class Stead extends StandardEntity {

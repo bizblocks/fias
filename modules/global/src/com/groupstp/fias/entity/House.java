@@ -11,7 +11,10 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-@Table(name = "FIAS_HOUSE")
+@Table(name = "FIAS_HOUSE", indexes = {
+        @Index(name = "IDX_FIAS_HOUSE_HOUSENUM_PARENT_ADM", columnList = "HOUSENUM, PARENT_ADM_ID"),
+        @Index(name = "IDX_FIAS_HOUSE_HOUSENUM_PARENT_MUN", columnList = "HOUSENUM, PARENT_MUN_ID")
+})
 @Entity(name = "fias_House")
 @NamePattern("%s %s %s|housenum,buildnum,strucnum")
 public class House extends StandardEntity {

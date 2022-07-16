@@ -1,5 +1,6 @@
 package com.groupstp.fias.web.screens;
 
+import com.groupstp.fias.entity.Address;
 import com.groupstp.fias.service.NormService;
 import com.haulmont.cuba.gui.components.Button;
 import com.haulmont.cuba.gui.components.TextField;
@@ -17,9 +18,12 @@ public class NormalizeAddress extends Screen {
     private NormService normService;
     @Inject
     private TextField<String> srcAddress;
+    @Inject
+    private TextField<String> normAddress;
 
     @Subscribe("normalize")
     public void onNormalizeClick(Button.ClickEvent event) {
-        normService.normalize(srcAddress.getRawValue());
+        Address address = normService.normalize(srcAddress.getRawValue());
+        normAddress.setValue(address.getNormAddress());
     }
 }

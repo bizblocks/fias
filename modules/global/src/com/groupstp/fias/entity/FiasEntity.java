@@ -17,7 +17,9 @@ import java.util.List;
 @NamePattern("%s %s|shortname,name")
 @Table(name = "FIAS_FIAS_ENTITY", indexes = {
         @Index(name = "IDX_FIAS_FIAS_ENTITY_CODE", columnList = "CODE"),
-        @Index(name = "IDX_FIAS_FIAS_ENTITY_NAME", columnList = "NAME")
+        @Index(name = "IDX_FIAS_FIAS_ENTITY_NAME", columnList = "NAME"),
+        @Index(name = "IDX_FIAS_FIAS_ENTITY_NAME_PARENT_ADM", columnList = "NAME, PARENT_ID"),
+        @Index(name = "IDX_FIAS_FIAS_ENTITY_NAME_PARENT_MUN", columnList = "NAME, PARENT_MUN_ID")
 })
 @Entity(name = "fias$FiasEntity")
 public class FiasEntity extends StandardEntity {
