@@ -1,5 +1,4 @@
 <window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
-        xmlns:c="http://schemas.haulmont.com/cuba/screen/jpql_condition.xsd"
         caption="msg://addressBrowse.caption"
         focusComponent="table"
         messagesPack="com.groupstp.fias.web.screens.address">
@@ -86,6 +85,7 @@
                                 <form id="form" dataContainer="addressDc" width="100%" height="100%">
                                     <column width="100%">
                                         <textField id="srcAddressField" property="srcAddress"/>
+                                        <textField id="cadastralNumberField" property="cadastralNumber"/>
                                         <textArea id="normAddressField" property="normAddress" height="100%"/>
                                     </column>
                                 </form>
