@@ -3,7 +3,7 @@
     <menu id="application-fias"
           insertBefore="sec$Role.browse">
         <item screen="fias$FiasEntity.browse"/>
-        <item screen="fias$House.browse"/>
+        <item screen="fias_House.browse" caption="mainMsg://menu-config.fias$House.browse"/>
         <item screen="fiasClientv2"/>
         <item screen="fias_NormalizeAddress" caption="mainMsg://menu_config.fias_NormalizeAddress"/>
         <item screen="fias_Address.browse" caption="mainMsg://menu_config.fias_Address.browse"/>

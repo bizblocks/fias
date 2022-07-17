@@ -1,63 +1,64 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
         caption="msg://browseCaption"
-        class="com.groupstp.fias.web.screens.house.HouseBrowse"
         focusComponent="housesTable"
-        lookupComponent="housesTable"
         messagesPack="com.groupstp.fias.web.screens.house">
-    <dsContext>
-        <groupDatasource id="housesDs"
+    <data>
+        <collection id="housesDc"
                          class="com.groupstp.fias.entity.House"
                          view="parent">
-            <query>
-                <![CDATA[select e from fias_House e]]>
-            </query>
-        </groupDatasource>
-    </dsContext>
+            <loader id="housesDl">
+                <query>
+                    <![CDATA[select e from fias_House e]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
     <dialogMode height="600"
                 width="800"/>
     <layout expand="housesTable"
             spacing="true">
         <filter id="filter"
                 applyTo="housesTable"
-                datasource="housesDs">
+                dataLoader="housesDl">
             <properties include=".*"/>
         </filter>
         <groupTable id="housesTable"
-                    width="100%">
+                    width="100%" dataContainer="housesDc">
             <actions>
-                <action id="create"/>
-                <action id="edit"/>
-                <action id="remove"/>
+                <action id="edit" type="edit"/>
+                <action id="remove" type="remove"/>
             </actions>
-            <columns>
-                <column id="buildnum"/>
-                <column id="strucnum"/>
-                <column id="startdate"/>
-                <column id="enddate"/>
-                <column id="parentAdm"
-                        link="true"
-                        linkScreen="fias$FiasEntity.edit"/>
-                <column id="postalcode"/>
-                <column id="cadastralNumber"/>
-                <column id="ifnsfl"/>
-                <column id="terrifnsul"/>
-                <column id="ifnsul"/>
-                <column id="okato"/>
-                <column id="oktmo"/>
-                <column id="housenum"/>
-            </columns>
-            <rows datasource="housesDs"/>
             <rowsCount/>
             <buttonsPanel id="buttonsPanel"
                           alwaysVisible="true">
-                <button id="createBtn"
-                        action="housesTable.create"/>
                 <button id="editBtn"
                         action="housesTable.edit"/>
                 <button id="removeBtn"
                         action="housesTable.remove"/>
             </buttonsPanel>
+            <columns>
+                <column id="garId"/>
+                <column id="postalcode"/>
+                <column id="housenum"/>
+                <column id="buildnum"/>
+                <column id="strucnum"/>
+                <column id="parentAdm"/>
+                <column id="parentMun"/>
+                <column id="cadastralNumber"/>
+                <column id="ifnsfl"/>
+                <column id="terrifnsfl"/>
+                <column id="ifnsul"/>
+                <column id="terrifnsul"/>
+                <column id="okato"/>
+                <column id="oktmo"/>
+                <column id="isactual"/>
+                <column id="isactive"/>
+                <column id="addressLevel"/>
+                <column id="startdate"/>
+                <column id="enddate"/>
+                <column id="updatedate"/>
+            </columns>
         </groupTable>
     </layout>
 </window>
