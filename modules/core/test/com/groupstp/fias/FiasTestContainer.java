@@ -15,7 +15,8 @@ public class FiasTestContainer extends TestContainer {
         super();
         appComponents = Arrays.asList(
                 "com.haulmont.cuba",
-                "de.diedavids.cuba.runtimediagnose");
+                "de.diedavids.cuba.runtimediagnose",
+                "com.haulmont.addon.restapi");
         appPropertiesFiles = Arrays.asList(
                 // List the files defined in your web.xml
                 // in appPropertiesConfig context parameter of the core module
