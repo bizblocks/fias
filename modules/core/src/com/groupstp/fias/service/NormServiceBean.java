@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -59,25 +60,27 @@ public class NormServiceBean implements NormService {
                 if (types.containsKey(i))
                     continue;
                 String component = components[j].trim();
-                int finalI = i;
-                int finalJ = j;
-                String[] tokens = component.split(" ");
-                if(tokens.length==1 && component.indexOf(".")>0) {
-                    tokens = component.replace(".", ". ").split(" ");
+                String tag = checkLevel(component, levels.get(i).getSimpleName());
+                if(tag==null) {
+                    continue;
                 }
-                if(tokens.length>1) {
-                    String[] finalTokens = tokens;
-                    Arrays.stream(tokens).forEach(token -> {
-                        if (checkLevel(token, levels.get(finalI).getSimpleName())) {
-                            types.put(finalI, finalJ);
-                            String componentWithoutToken = Arrays.stream(finalTokens).filter(s -> !s.equals(token)).collect(Collectors.joining(" "));
-                            components[finalJ] = componentWithoutToken.trim();
-                        }
-                    });
-                }
-                if (types.containsKey(i)) {
-                    break;
-                }
+                types.put(i, j);
+                components[j] = component.replaceAll(tag, "").trim();
+                break;
+//                String[] tokens = component.split(" ");
+//                if(tokens.length==1 && component.indexOf(".")>0) {
+//                    tokens = component.replace(".", ". ").split(" ");
+//                }
+//                if(tokens.length>1) {
+//                    String[] finalTokens = tokens;
+//                    Arrays.stream(tokens).forEach(token -> {
+//                        if (checkLevel(token, levels.get(finalI).getSimpleName())) {
+//                            types.put(finalI, finalJ);
+//                            String componentWithoutToken = Arrays.stream(finalTokens).filter(s -> !s.equals(token)).collect(Collectors.joining(" "));
+//                            components[finalJ] = componentWithoutToken.trim();
+//                        }
+//                    });
+//                }
             }
         }
 
@@ -206,16 +209,26 @@ public class NormServiceBean implements NormService {
 
     Map<String, String> tags = new HashMap<>();
 
-    boolean checkLevel(String token, String type) {
-        token = token.trim().toLowerCase();
-        if(tags.containsKey(token+type))
-            return true;
+//    boolean checkLevel(String token, String type) {
+//        token = token.trim().toLowerCase();
+//        if(tags.containsKey(token+type))
+//            return true;
+//        List<DivisionTag> divisionTags = dataManager.load(DivisionTag.class)
+//                .query("e.type=?1 and lower(e.tag)=lower(?2)", type, token.trim())
+//                .list();
+//        divisionTags.forEach(t->tags.put(t.getTag().toLowerCase()+t.getType(), t.getType()));
+//        return divisionTags.size()>0;
+//    }
+
+    @Nullable
+    String checkLevel(String component, String type) {
         List<DivisionTag> divisionTags = dataManager.load(DivisionTag.class)
-                .query("e.type=?1 and lower(e.tag)=lower(?2)", type, token.trim())
+                .query("e.type=?1 and (lower(?2) like concat(e.tag,' %') or lower(?2) like concat('% ', e.tag))", type, component.trim())
                 .list();
         divisionTags.forEach(t->tags.put(t.getTag().toLowerCase()+t.getType(), t.getType()));
-        return divisionTags.size()>0;
+        return divisionTags.size()>0 ? divisionTags.get(0).getTag() : null;
     }
+
 
 
     List<String> determineComponentType(String component) {
