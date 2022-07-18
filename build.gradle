@@ -1,8 +1,7 @@
-
 buildscript {
     ext.cubaVersion = '7.2.19'
     repositories {
-        
+
         mavenLocal()
         maven {
             url 'https://repo.cuba-platform.com/content/groups/work'
@@ -32,6 +31,9 @@ def webModule = project(":${modulePrefix}-web")
 
 def servletApi = 'javax.servlet:javax.servlet-api:3.1.0'
 
+def lombok = 'org.projectlombok:lombok:1.18.20'
+def lombokProcessor = 'org.projectlombok:lombok:1.18.20'
+
 
 apply(plugin: 'cuba')
 
@@ -57,6 +59,7 @@ cuba {
 dependencies {
     appComponent("com.haulmont.cuba:cuba-global:$cubaVersion")
     appComponent('de.diedavids.cuba.runtimediagnose:runtime-diagnose-global:1.5.0')
+    appComponent('com.haulmont.addon.restapi:restapi-global:7.2.4')
 
 }
 
@@ -94,6 +97,8 @@ configure(globalModule) {
         //compile('org.meridor:fias-client:1.1-SNAPSHOT')
         compile(name: 'gar-client')
         compile('javax.xml.bind:jaxb-api:2.3.1')
+        compile(lombok)
+        annotationProcessor(lombokProcessor)
         if (!JavaVersion.current().isJava8()) {
             runtime('javax.xml.bind:jaxb-api:2.3.1')
             runtime('org.glassfish.jaxb:jaxb-runtime:2.3.1')
@@ -127,7 +132,8 @@ configure(coreModule) {
         compileOnly(servletApi)
         jdbc(postgres)
         testRuntime(postgres)
-
+        compileOnly(lombok)
+        annotationProcessor(lombokProcessor)
     }
 
     task cleanConf(description: 'Cleans up conf directory', type: Delete) {
@@ -164,7 +170,8 @@ configure(webModule) {
     dependencies {
         compileOnly(servletApi)
         compile(globalModule)
-
+        compileOnly(lombok)
+        annotationProcessor(lombokProcessor)
     }
 
     task webArchive(type: Zip) {
@@ -197,9 +204,6 @@ configure(webModule) {
         appJars(modulePrefix + '-global', modulePrefix + '-web')
     }
 }
-
-
-
 
 
 task undeploy(type: Delete, dependsOn: ":${modulePrefix}-web:cleanConf") {

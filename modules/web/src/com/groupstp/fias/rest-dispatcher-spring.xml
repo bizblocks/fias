@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:security="http://www.springframework.org/schema/security">
+
+    <!-- Swagger resources -->
+    <mvc:resources mapping="swagger-ui.html" location="classpath:/META-INF/resources/"/>
+    <mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/>
+
+<!--    <bean id="rtneo_SwaggerConfig" class="com.groupstp.fias.web.config.SwaggerConfig"/>-->
+
+    <!-- Define a base package for your controllers-->
+    <context:component-scan base-package="com.groupstp.fias.web.controller"/>
+
+    <security:http pattern="/rest/v3/**"
+                   create-session="stateless"
+                   entry-point-ref="oauthAuthenticationEntryPoint"
+                   xmlns="http://www.springframework.org/schema/security">
+        <!-- Specify one or more protected URL patterns-->
+        <intercept-url pattern="/rest/v3/**" access="isAuthenticated()"/>
+        <anonymous enabled="false"/>
+        <csrf disabled="true"/>
+        <cors configuration-source-ref="cuba_RestCorsSource"/>
+        <custom-filter ref="resourceFilter" before="FORM_LOGIN_FILTER"/>
+        <custom-filter ref="cuba_AnonymousAuthenticationFilter" after="PRE_AUTH_FILTER"/>
+    </security:http>
+
+</beans>

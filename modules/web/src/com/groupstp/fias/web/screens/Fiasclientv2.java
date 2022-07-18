@@ -637,7 +637,17 @@ public class Fiasclientv2 extends AbstractWindow {
         entity.setValue("enddate", object.getENDDATE().toGregorianCalendar().getTime(), true);
         entity.setValue("prevID", object.getPREVID(), true);
         entity.setValue("garId", object.getOBJECTID(), true);
-        entity.setValue("addressLevel", object.getLEVEL());
+        try {
+            entity.setValue("addressLevel", object.getLEVEL());
+        }catch (ClassCastException classCastException){
+            try {
+                entity.setValue("addressLevel", Integer.valueOf(object.getLEVEL()));
+            }catch (ClassCastException e){
+                log.error("Error to cast");
+            }
+
+        }
+
         return entity;
     }
 
