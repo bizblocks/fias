@@ -1,60 +1,79 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
         caption="msg://editorCaption"
-        class="com.groupstp.fias.web.fiasentity.FiasEntityEdit"
-        datasource="fiasEntityDs"
         focusComponent="fieldGroup"
         messagesPack="com.groupstp.fias.web.fiasentity">
-    <dsContext>
-        <datasource id="fiasEntityDs"
+    <data>
+        <instance id="fiasEntityDc"
                     class="com.groupstp.fias.entity.FiasEntity"
-                    view="parent"/>
-        <collectionDatasource id="housesDs" class="com.groupstp.fias.entity.House" view="parent">
-            <query>
-                <![CDATA[select e from fias_House e where e.parentAdm.id=:ds$fiasEntityDs.id]]>
-            </query>
-        </collectionDatasource>
-        <collectionDatasource id="steadsDs" class="com.groupstp.fias.entity.Stead" view="parent">
-            <query>
-                <![CDATA[select e from fias_Stead e where e.parentAdm.id=:ds$fiasEntityDs.id]]>
-            </query>
-        </collectionDatasource>
-        <collectionDatasource id="childrenDs" class="com.groupstp.fias.entity.FiasEntity" view="parent">
-            <query>
-                <![CDATA[select e from fias$FiasEntity e where e.parentAdm.id=:ds$fiasEntityDs.id or e.parentMun.id=:ds$fiasEntityDs.id]]>
-            </query>
-        </collectionDatasource>
-    </dsContext>
-    <dialogMode height="600"
-                width="800"/>
+                  view="parent">
+            <loader/>
+        </instance>
+        <collection id="housesDc" class="com.groupstp.fias.entity.House" view="parent">
+            <loader id="housesDl">
+                <query>
+                    <![CDATA[select e from fias_House e where e.parentAdm=:container_fiasEntityDc]]>
+                </query>
+            </loader>
+        </collection>
+        <collection id="steadsDc" class="com.groupstp.fias.entity.Stead" view="parent">
+            <loader id="steadsDl">
+                <query>
+                    <![CDATA[select e from fias_Stead e where e.parentAdm=:container_fiasEntityDc]]>
+                </query>
+            </loader>
+        </collection>
+        <collection id="childrenDc" class="com.groupstp.fias.entity.FiasEntity" view="parent">
+            <loader id="childrenDl">
+                <query>
+                    <![CDATA[select e from fias$FiasEntity e where e.parentAdm=:container_fiasEntityDc or e.parentMun=:container_fiasEntityDc]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
     <layout expand="tab"
             spacing="true">
         <tabSheet id="tab">
             <tab id="main" caption="msg://main.caption_1">
-                <fieldGroup id="fieldGroup"
-                                    datasource="fiasEntityDs">
+                <form id="fieldGroup"
+                      dataContainer="fiasEntityDc">
                     <column width="350px">
-                        <field property="name"/>
-                        <field property="parentAdm"/>
-                        <field property="parentMun"/>
-                        <field property="postalCode"/>
-                        <field property="offname"/>
-                        <field property="formalname"/>
-                        <field property="possibleNames"
-                               rows="5"/>
-                        <field property="garId"/>
-                        <field property="shortname"/>
-                        <field property="updatedate"/>
-                        <field property="actstatus"/>
-                        <field property="operstatus"/>
-                        <field property="startdate"/>
-                        <field property="enddate"/>
+                        <textField id="nameField" property="name"/>
+                        <textField id="addressLevelField" property="addressLevel"/>
+                        <pickerField id="parentAdmField" property="parentAdm">
+                            <actions>
+                                <action id="lookup" type="picker_lookup"/>
+                                <action id="open" type="picker_open"/>
+                                <action id="clear" type="picker_clear"/>
+                            </actions>
+                        </pickerField>
+                        <pickerField id="parentMunField" property="parentMun">
+                            <actions>
+                                <action id="lookup" type="picker_lookup"/>
+                                <action id="open" type="picker_open"/>
+                                <action id="clear" type="picker_clear"/>
+                            </actions>
+                        </pickerField>
+                        <textField id="postalCodeField" property="postalCode"/>
+                        <textField id="offnameField" property="offname"/>
+                        <textField id="formalnameField" property="formalname"/>
+                        <textArea id="possibleNamesField" property="possibleNames" rows="5"/>
+                        <textField id="garIdField" property="garId"/>
+                        <textField id="shortnameField" property="shortname"/>
+                        <dateField id="updatedateField" property="updatedate"/>
+                        <lookupField id="actstatusField" property="actstatus"/>
+                        <lookupField id="operstatusField" property="operstatus"/>
+                        <dateField id="startdateField" property="startdate"/>
+                        <dateField id="enddateField" property="enddate"/>
+                        <textField id="prevIDField" property="prevID"/>
                     </column>
-                </fieldGroup>
+                </form>
             </tab>
             <tab id="children" caption="msg://children.caption" expand="childrenTable">
-                <table id="childrenTable" >
-                    <rows datasource="childrenDs"/>
+                <table id="childrenTable" dataContainer="childrenDc">
                     <rowsCount autoLoad="true"/>
                     <columns>
                         <column id="name"/>
@@ -77,7 +96,8 @@
                 </table>
             </tab>
             <tab id="houses" caption="msg://houses.caption" expand="housesTable">
-                <table id="housesTable" height="AUTO" width="AUTO">
+                <table id="housesTable" height="AUTO" width="AUTO" dataContainer="housesDc">
+                    <rowsCount autoLoad="true"/>
                     <columns>
                         <column id="garId"/>
                         <column id="postalcode"/>
@@ -100,13 +120,11 @@
                         <column id="enddate"/>
                         <column id="updatedate"/>
                     </columns>
-                    <rows datasource="housesDs"/>
-                    <rowsCount autoLoad="true"/>
                 </table>
             </tab>
             <tab id="steads" caption="msg://steads.caption" expand="steadsTable">
-                <table id="steadsTable" height="AUTO" width="AUTO">
-                    <rows datasource="steadsDs"/>
+                <table id="steadsTable" height="AUTO" width="AUTO" dataContainer="steadsDc">
+                    <rowsCount autoLoad="true"/>
                     <columns>
                         <column id="garId"/>
                         <column id="number"/>
@@ -119,7 +137,6 @@
                         <column id="isactive"/>
                         <column id="addressLevel"/>
                     </columns>
-                    <rowsCount autoLoad="true"/>
                 </table>
             </tab>
 

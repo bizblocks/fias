@@ -1,8 +1,8 @@
 package com.groupstp.fias.web.fiasentity;
 
 import com.groupstp.fias.entity.FiasEntity;
+import com.haulmont.cuba.gui.components.actions.EditAction;
 import com.haulmont.cuba.gui.components.*;
-import com.haulmont.cuba.gui.data.GroupDatasource;
 import com.haulmont.cuba.gui.data.HierarchicalDatasource;
 import com.haulmont.cuba.gui.screen.Subscribe;
 
@@ -31,6 +31,7 @@ public class FiasEntityBrowse extends AbstractLookup {
         List<String> hList = new ArrayList<>(Arrays.asList("Административное", "Муниципальное", "Без иерархии"));
         hierarchySwitch.setOptionsList(hList);
         hierarchySwitch.setValue("Административное");
+        ((EditAction)fiasEntitiesTable.getAction("edit")).setWindowId("fias_FiasEntity.edit");
     }
 
     @Subscribe("hierarchySwitch")

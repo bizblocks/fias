@@ -8,10 +8,7 @@ import com.haulmont.cuba.gui.components.AbstractEditor;
 import com.haulmont.cuba.gui.components.PickerField;
 import com.haulmont.cuba.gui.components.Table;
 import com.haulmont.cuba.gui.components.actions.BaseAction;
-import com.haulmont.cuba.gui.screen.StandardEditor;
-import com.haulmont.cuba.gui.screen.Subscribe;
-import com.haulmont.cuba.gui.screen.UiController;
-import com.haulmont.cuba.gui.screen.UiDescriptor;
+import com.haulmont.cuba.gui.screen.*;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -19,6 +16,8 @@ import java.util.Map;
 
 @UiController("fias_FiasEntity.edit")
 @UiDescriptor("fias-entity-edit.xml")
+@EditedEntityContainer("fiasEntityDc")
+@LoadDataBeforeShow
 public class FiasEntityEdit extends StandardEditor<FiasEntity> {
     @Subscribe
     public void onAfterInit(AfterInitEvent event) {
@@ -32,10 +31,10 @@ public class FiasEntityEdit extends StandardEditor<FiasEntity> {
         housesTable.setEnterPressAction(housesTable.getItemClickAction());
     }
 
-    @Named("fieldGroup.parentAdm")
-    private PickerField<FiasEntity> parentAdmField;
-    @Named("fieldGroup.parentMun")
+    @Inject
     private PickerField<FiasEntity> parentMunField;
+    @Inject
+    private PickerField<FiasEntity> parentAdmField;
     @Inject
     private Table<FiasEntity> childrenTable;
     @Inject
