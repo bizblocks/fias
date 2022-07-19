@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services xmlns="http://schemas.haulmont.com/cuba/rest-services-v2.xsd">
+    <service name="fias_NormService">
+        <method name="normalize" anonymousAllowed="true">
+            <param name="address" type="java.lang.String"/>
+            <param name="force" type="java.lang.Boolean"/>
+        </method>
+    </service>
+</services>

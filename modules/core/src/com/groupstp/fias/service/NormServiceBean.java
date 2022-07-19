@@ -1,6 +1,7 @@
 package com.groupstp.fias.service;
 
 import com.groupstp.fias.entity.*;
+import com.haulmont.cuba.core.entity.BaseEntityInternalAccess;
 import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.LoadContext;
@@ -123,15 +124,7 @@ public class NormServiceBean implements NormService {
         });
 
         if(parents.size()>0) {
-            Address address = dataManager.load(Address.class)
-                    .view("full")
-                    .query("e.srcAddress=?1", srcAddress)
-                    .optional()
-                    .orElseGet(()-> {
-                        Address a = dataManager.create(Address.class);
-                        a.setSrcAddress(srcAddress);
-                        return a;
-                    });
+            Address address = getAddress(srcAddress);
             final List<House> houses = new ArrayList<>();
             parents.forEach(entity -> { if (entity.getClass().equals(House.class)) houses.add((House) entity); });
             address.setHouse(houses);
@@ -154,6 +147,56 @@ public class NormServiceBean implements NormService {
             return address;
         }
         return null;
+    }
+
+    @Override
+    public Map<String, Object> normalize(String address, Boolean force) {
+        Map<String, Object> res = new HashMap<>();
+        Address a = normalizeInternal(address, force);
+        if(a==null) {
+            return res;
+        }
+
+        res.put("srcAddress", address);
+        res.put("normAddresses", a.getNormAddress().split("\n"));
+        res.put("cadastralNumber", a.getCadastralNumber());
+        if(a.getHouse().size()>0) {
+            List<String> fiasList = a.getHouse().stream().map(h -> h.getId().toString()).collect(Collectors.toList());
+            res.put("Houses", fiasList);
+        }
+
+        if(a.getStead().size()>0) {
+            List<String> fiasList = a.getStead().stream().map(h -> h.getId().toString()).collect(Collectors.toList());
+            res.put("Steads", fiasList);
+        }
+
+        if(a.getFiasEntity().size()>0) {
+            List<String> fiasList = a.getStead().stream().map(h -> h.getId().toString()).collect(Collectors.toList());
+            res.put("FiasEntities", fiasList);
+        }
+
+        return res;
+    }
+
+    private Address normalizeInternal(String address, boolean force) {
+        Address a = null;
+        if(!force)
+            a = getAddress(address);
+        if(force || (a!=null && BaseEntityInternalAccess.isNew(a)))
+            a = normalize(address);
+        return a;
+    }
+
+    private Address getAddress(String srcAddress) {
+        return dataManager.load(Address.class)
+                .view("full")
+                .query("e.srcAddress=?1", srcAddress.trim())
+                .optional()
+                .orElseGet(()-> {
+                    Address a = dataManager.create(Address.class);
+                    a.setSrcAddress(srcAddress);
+                    return a;
+                });
     }
 
     private List<StandardEntity> findHouseOrStead(String component, FiasEntity p) {
