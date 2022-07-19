@@ -16,11 +16,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+@Slf4j
 @RestController()
 @RequestMapping("/v3/getting")
 @Api(tags = "Получение информации")
 @RequiredArgsConstructor
-@Slf4j
 public class GettingController {
 
     private final NormService normService;
