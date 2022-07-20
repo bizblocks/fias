@@ -66,7 +66,8 @@ public class NormServiceBean implements NormService {
                     continue;
                 }
                 types.put(i, j);
-                components[j] = component.replaceAll(tag, "").trim();
+
+                components[j] = (" "+component+" ").replaceAll(" "+tag+" ", "").trim();
                 break;
             }
         }
@@ -251,7 +252,7 @@ public class NormServiceBean implements NormService {
     @Nullable
     String checkLevel(String component, String type) {
         List<DivisionTag> divisionTags = dataManager.load(DivisionTag.class)
-                .query("e.type=?1 and (lower(?2) like concat(e.tag,' %') or lower(?2) like concat('% ', e.tag))", type, component.trim())
+                .query("e.type=?1 and (lower(?2) like concat(e.tag,' %') or lower(?2) like concat('% ', e.tag)) order by length(e.tag) desc", type, component.trim())
                 .list();
         divisionTags.forEach(t->tags.put(t.getTag().toLowerCase()+t.getType(), t.getType()));
         return divisionTags.size()>0 ? divisionTags.get(0).getTag() : null;
