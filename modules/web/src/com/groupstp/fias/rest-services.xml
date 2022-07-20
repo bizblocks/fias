@@ -5,5 +5,8 @@
             <param name="address" type="java.lang.String"/>
             <param name="force" type="java.lang.Boolean"/>
         </method>
+        <method name="getFIASAddress" anonymousAllowed="true">
+            <param name="fias" type="java.lang.String"/>
+        </method>
     </service>
 </services>

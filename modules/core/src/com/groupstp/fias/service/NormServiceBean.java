@@ -178,6 +178,16 @@ public class NormServiceBean implements NormService {
         return res;
     }
 
+    @Override
+    public List<String> getFIASAddress(String fias) {
+        try {
+            UUID uuid = UUID.fromString(fias);
+        } catch (IllegalArgumentException exception) {
+            return Arrays.asList("Wrong FIAS GUID");
+        }
+        return Arrays.asList(constructAddress(getEntity(fias), null, 0).split("\n"));
+    }
+
     private Address normalizeInternal(String address, boolean force) {
         Address a = null;
         if(!force)
@@ -426,5 +436,19 @@ public class NormServiceBean implements NormService {
         return String.join("\n", str);
     }
 
+    List<StandardEntity> getEntity(String fias) {
+        List<StandardEntity> entities = getEntityForClass(fias, FiasEntity.class);
+        if(entities.size()==0)
+            entities = getEntityForClass(fias, House.class);
+        if(entities.size()==0)
+            entities = getEntityForClass(fias, Stead.class);
+        return entities;
+    }
 
+    List<StandardEntity> getEntityForClass(String fias, Class<? extends StandardEntity> clazz) {
+        return dataManager.load(clazz)
+                .query("e.id=?1", UUID.fromString(fias))
+                .list()
+                .stream().map(entity -> (StandardEntity) entity).collect(Collectors.toList());
+    }
 }
