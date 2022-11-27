@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://jmix.io/schema/ui/window" xmlns:dynattr="http://jmix.io/schema/dynattr/ui" xmlns:cuba="http://schemas.haulmont.com/cuba/screen/compatibility"
+    caption="msg://editorCaption" focusComponent="fieldGroup">
+    <data>
+        <instance id="fiasEntityDc" class="com.groupstp.fias.entity.FiasEntity" fetchPlan="parent">
+            <loader />
+        </instance>
+        <collection id="housesDc" class="com.groupstp.fias.entity.House" fetchPlan="parent">
+            <loader id="housesDl">
+                <query>
+                    <![CDATA[select e from fias_House e where e.parentAdm=:container_fiasEntityDc]]>
+                </query>
+            </loader>
+        </collection>
+        <collection id="steadsDc" class="com.groupstp.fias.entity.Stead" fetchPlan="parent">
+            <loader id="steadsDl">
+                <query>
+                    <![CDATA[select e from fias_Stead e where e.parentAdm=:container_fiasEntityDc]]>
+                </query>
+            </loader>
+        </collection>
+        <collection id="childrenDc" class="com.groupstp.fias.entity.FiasEntity" fetchPlan="parent">
+            <loader id="childrenDl">
+                <query>
+                    <![CDATA[select e from fias$FiasEntity e where e.parentAdm=:container_fiasEntityDc or e.parentMun=:container_fiasEntityDc]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true" />
+        <dynattr:dynamicAttributes />
+    </facets>
+    <layout expand="tab" spacing="true">
+        <tabSheet id="tab">
+            <tab id="main" caption="msg://main.caption_1">
+                <form id="fieldGroup" dataContainer="fiasEntityDc">
+                    <column width="350px">
+                        <textField id="nameField" property="name" />
+                        <textField id="addressLevelField" property="addressLevel" />
+                        <entityPicker id="parentAdmField" property="parentAdm">
+                            <actions>
+                                <action id="lookup" type="entity_lookup" />
+                                <action id="open" type="entity_open" />
+                                <action id="clear" type="entity_clear" />
+                            </actions>
+                        </entityPicker>
+                        <entityPicker id="parentMunField" property="parentMun">
+                            <actions>
+                                <action id="lookup" type="entity_lookup" />
+                                <action id="open" type="entity_open" />
+                                <action id="clear" type="entity_clear" />
+                            </actions>
+                        </entityPicker>
+                        <textField id="postalCodeField" property="postalCode" />
+                        <textField id="offnameField" property="offname" />
+                        <textField id="formalnameField" property="formalname" />
+                        <textArea id="possibleNamesField" property="possibleNames" rows="5" />
+                        <textField id="garIdField" property="garId" />
+                        <textField id="shortnameField" property="shortname" />
+                        <dateField id="updatedateField" property="updatedate" />
+                        <comboBox id="actstatusField" property="actstatus" />
+                        <comboBox id="operstatusField" property="operstatus" />
+                        <dateField id="startdateField" property="startdate" />
+                        <dateField id="enddateField" property="enddate" />
+                        <textField id="prevIDField" property="prevID" />
+                    </column>
+                </form>
+            </tab>
+            <tab id="children" caption="msg://children.caption" expand="childrenTable">
+                <table id="childrenTable" dataContainer="childrenDc">
+                    <simplePagination autoLoad="true" />
+                    <columns>
+                        <column id="name" />
+                        <column id="addressLevel" />
+                        <column id="parentAdm" />
+                        <column id="parentMun" />
+                        <column id="postalCode" />
+                        <column id="offname" />
+                        <column id="formalname" />
+                        <column id="possibleNames" />
+                        <column id="garId" />
+                        <column id="shortname" />
+                        <column id="updatedate" />
+                        <column id="actstatus" />
+                        <column id="operstatus" />
+                        <column id="startdate" />
+                        <column id="enddate" />
+                        <column id="prevID" />
+                    </columns>
+                </table>
+            </tab>
+            <tab id="houses" caption="msg://houses.caption" expand="housesTable">
+                <table id="housesTable" height="AUTO" width="AUTO" dataContainer="housesDc">
+                    <simplePagination autoLoad="true" />
+                    <columns>
+                        <column id="garId" />
+                        <column id="postalcode" />
+                        <column id="housenum" />
+                        <column id="buildnum" />
+                        <column id="strucnum" />
+                        <column id="parentAdm" />
+                        <column id="parentMun" />
+                        <column id="cadastralNumber" />
+                        <column id="ifnsfl" />
+                        <column id="terrifnsfl" />
+                        <column id="ifnsul" />
+                        <column id="terrifnsul" />
+                        <column id="okato" />
+                        <column id="oktmo" />
+                        <column id="isactual" />
+                        <column id="isactive" />
+                        <column id="addressLevel" />
+                        <column id="startdate" />
+                        <column id="enddate" />
+                        <column id="updatedate" />
+                    </columns>
+                </table>
+            </tab>
+            <tab id="steads" caption="msg://steads.caption" expand="steadsTable">
+                <table id="steadsTable" height="AUTO" width="AUTO" dataContainer="steadsDc">
+                    <simplePagination autoLoad="true" />
+                    <columns>
+                        <column id="garId" />
+                        <column id="number" />
+                        <column id="parentAdm" />
+                        <column id="parentMun" />
+                        <column id="startdate" />
+                        <column id="enddate" />
+                        <column id="updatedate" />
+                        <column id="isactual" />
+                        <column id="isactive" />
+                        <column id="addressLevel" />
+                    </columns>
+                </table>
+            </tab>
+
+        </tabSheet>
+        <frame id="windowActions" screen="editWindowActions" />
+    </layout>
+</window>

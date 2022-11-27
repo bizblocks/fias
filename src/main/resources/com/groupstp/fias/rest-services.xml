@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services xmlns="http://jmix.io/schema/rest/services">
+    <service name="fias_NormService">
+        <method name="normalize" anonymousAllowed="true">
+            <param name="address" type="java.lang.String"/>
+            <param name="force" type="java.lang.Boolean"/>
+        </method>
+        <method name="getFIASAddress" anonymousAllowed="true">
+            <param name="fias" type="java.lang.String"/>
+        </method>
+    </service>
+</services>

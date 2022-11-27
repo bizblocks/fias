@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://jmix.io/schema/ui/window" xmlns:dynattr="http://jmix.io/schema/dynattr/ui" xmlns:cuba="http://schemas.haulmont.com/cuba/screen/compatibility"
+    caption="msg://browseCaption" focusComponent="housesTable">
+    <data>
+        <collection id="housesDc" class="com.groupstp.fias.entity.House" fetchPlan="parent">
+            <loader id="housesDl">
+                <query>
+                    <![CDATA[select e from fias_House e]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <dialogMode height="600" width="800" />
+    <layout expand="housesTable" spacing="true">
+        <cuba:cubaFilter id="filter" applyTo="housesTable" dataLoader="housesDl">
+            <properties include=".*" />
+        </cuba:cubaFilter>
+        <groupTable id="housesTable" width="100%" dataContainer="housesDc">
+            <actions>
+                <action id="edit" type="edit" />
+                <action id="remove" type="remove" />
+            </actions>
+            <simplePagination />
+            <buttonsPanel id="buttonsPanel" alwaysVisible="true">
+                <button id="editBtn" action="housesTable.edit" />
+                <button id="removeBtn" action="housesTable.remove" />
+            </buttonsPanel>
+            <columns>
+                <column id="garId" />
+                <column id="postalcode" />
+                <column id="housenum" />
+                <column id="buildnum" />
+                <column id="strucnum" />
+                <column id="parentAdm" />
+                <column id="parentMun" />
+                <column id="cadastralNumber" />
+                <column id="ifnsfl" />
+                <column id="terrifnsfl" />
+                <column id="ifnsul" />
+                <column id="terrifnsul" />
+                <column id="okato" />
+                <column id="oktmo" />
+                <column id="isactual" />
+                <column id="isactive" />
+                <column id="addressLevel" />
+                <column id="startdate" />
+                <column id="enddate" />
+                <column id="updatedate" />
+            </columns>
+        </groupTable>
+    </layout>
+    <facets>
+        <dynattr:dynamicAttributes />
+    </facets>
+</window>

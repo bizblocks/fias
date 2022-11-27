@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://jmix.io/schema/ui/window" xmlns:dynattr="http://jmix.io/schema/dynattr/ui" xmlns:cuba="http://schemas.haulmont.com/cuba/screen/compatibility"
+    caption="msg://editorCaption" focusComponent="form">
+    <data>
+        <instance id="houseDc" class="com.groupstp.fias.entity.House" fetchPlan="parent">
+            <loader />
+        </instance>
+    </data>
+    <dialogMode height="600" width="800" />
+    <layout expand="windowActions" spacing="true">
+        <form id="form" dataContainer="houseDc">
+            <column width="350px">
+                <field property="housenum" />
+                <field property="buildnum" />
+                <field property="strucnum" />
+                <field property="startdate" />
+                <field property="enddate" />
+                <field property="parentAdm" />
+                <field property="parentMun" />
+                <field property="postalcode" />
+                <field property="ifnsfl" />
+                <field property="terrifnsul" />
+                <field property="ifnsul" />
+                <field property="okato" />
+                <field property="oktmo" />
+            </column>
+        </form>
+        <frame id="windowActions" screen="editWindowActions" />
+    </layout>
+    <facets>
+        <dynattr:dynamicAttributes />
+    </facets>
+</window>

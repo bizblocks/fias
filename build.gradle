@@ -1,222 +1,61 @@
-
-buildscript {
-    ext.cubaVersion = '7.2.20'
-    repositories {
-        
-        mavenLocal()
-        maven {
-            url 'https://repo.cuba-platform.com/content/groups/work'
-            credentials {
-                username(rootProject.hasProperty('repoUser') ? rootProject['repoUser'] : 'cuba')
-                password(rootProject.hasProperty('repoPass') ? rootProject['repoPass'] : 'cuba123')
-            }
-        }
-        maven {
-            url = myMavenRepoReadUrl
-        }
-        flatDir {
-            dirs "${project.rootDir}/lib/"
-        }
-
-    }
-    dependencies {
-        classpath "com.haulmont.gradle:cuba-plugin:$cubaVersion"
-    }
+plugins {
+    id 'io.jmix' version '1.3.1'
+    id 'java'
 }
 
-def modulePrefix = 'fias'
+apply plugin: 'org.springframework.boot'
 
-def globalModule = project(":${modulePrefix}-global")
-def coreModule = project(":${modulePrefix}-core")
-def webModule = project(":${modulePrefix}-web")
+jmix {
+    bomVersion = '1.3.5'
+    projectId = 'fias'
+}
 
-def servletApi = 'javax.servlet:javax.servlet-api:3.1.0'
+group = 'com.groupstp'
+version = '0.0.1-SNAPSHOT'
 
-
-apply(plugin: 'cuba')
-
-cuba {
-    artifact {
-        group = 'com.groupstp.fias'
-        version = '0.5.0'
-        isSnapshot = false
+repositories {
+    mavenCentral()
+    maven {
+        url 'https://global.repo.jmix.io/repository/public'
     }
-    ide {
-        vcs = 'Git'
-    }
-    uploadRepository {
-        url = myMavenRepoWriteUrl
-    }
-    tomcat {
-        port = '9090'
-        shutdownPort = '9005'
-        debugPort = '9797'
+    flatDir {
+        dirs "${project.rootDir}/lib/"
     }
 }
 
 dependencies {
-    appComponent("com.haulmont.cuba:cuba-global:$cubaVersion")
-    appComponent('de.diedavids.cuba.runtimediagnose:runtime-diagnose-global:1.5.0')
-    appComponent('com.haulmont.addon.restapi:restapi-global:7.2.4')
+    implementation 'io.jmix.core:jmix-core-starter'
+    implementation 'io.jmix.data:jmix-eclipselink-starter'
+    implementation 'io.jmix.ui:jmix-ui-starter'
+    implementation 'io.jmix.ui:jmix-ui-data-starter'
+    implementation 'io.jmix.ui:jmix-ui-themes-compiled'
+    implementation 'io.jmix.ui:jmix-ui-widgets-compiled'
+    implementation 'io.jmix.security:jmix-security-starter'
+    implementation 'io.jmix.security:jmix-security-ui-starter'
+    implementation 'io.jmix.security:jmix-security-data-starter'
+    implementation 'io.jmix.localfs:jmix-localfs-starter'
+    implementation 'io.jmix.datatools:jmix-datatools-starter'
+    implementation 'io.jmix.datatools:jmix-datatools-ui-starter'
 
-}
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
-def postgres = 'org.postgresql:postgresql:42.2.9'
 
-configure([globalModule, coreModule, webModule]) {
-    apply(plugin: 'java')
-    apply(plugin: 'maven')
-    apply(plugin: 'cuba')
-
-    dependencies {
-        testCompile('junit:junit:4.12')
-        testCompile('org.junit.jupiter:junit-jupiter-api:5.5.2')
-        testCompile('org.junit.jupiter:junit-jupiter-engine:5.5.2')
-        testCompile('org.junit.vintage:junit-vintage-engine:5.5.2')
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
+    implementation "io.jmix.cuba:jmix-cuba-starter"
+    implementation "io.jmix.rest:jmix-rest-starter"
+    implementation "io.jmix.security:jmix-security-oauth2-starter"
+    implementation 'org.postgresql:postgresql'
 
-    task sourceJar(type: Jar) {
-        from file('src')
-        classifier = 'sources'
-    }
-
-    artifacts {
-        archives sourceJar
-    }
-
-    test {
-        useJUnitPlatform()
+    implementation(name: 'gar-client')
+    implementation('javax.xml.bind:jaxb-api:2.3.1')
+    if (!JavaVersion.current().isJava8()) {
+        implementation('javax.xml.bind:jaxb-api:2.3.1')
+        implementation('org.glassfish.jaxb:jaxb-runtime:2.3.1')
     }
 }
 
-configure(globalModule) {
-
-    dependencies {
-        //compile('org.meridor:fias-client:1.1-SNAPSHOT')
-        compile(name: 'gar-client')
-        compile('javax.xml.bind:jaxb-api:2.3.1')
-        if (!JavaVersion.current().isJava8()) {
-            runtime('javax.xml.bind:jaxb-api:2.3.1')
-            runtime('org.glassfish.jaxb:jaxb-runtime:2.3.1')
-        }
-    }
-    entitiesEnhancing {
-        main {
-            enabled = true
-        }
-    }
-
-    jar {
-        manifest {
-            attributes('App-Component-Id': cuba.artifact.group)
-            attributes('App-Component-Version': cuba.artifact.version + (cuba.artifact.isSnapshot ? '-SNAPSHOT' : ''))
-        }
-    }
-
-
+test {
+    useJUnitPlatform()
 }
-
-configure(coreModule) {
-
-    configurations {
-        jdbc
-        dbscripts
-    }
-
-    dependencies {
-        compile(globalModule)
-        compileOnly(servletApi)
-        jdbc(postgres)
-        testRuntime(postgres)
-
-    }
-
-    task cleanConf(description: 'Cleans up conf directory', type: Delete) {
-        delete "$cuba.appHome/${modulePrefix}-core/conf"
-    }
-
-    task deploy(dependsOn: [assemble, cleanConf], type: CubaDeployment) {
-        appName = "${modulePrefix}-core"
-        appJars(modulePrefix + '-global', modulePrefix + '-core')
-    }
-
-    task createDb(dependsOn: assembleDbScripts, description: 'Creates local database', type: CubaDbCreation) {
-        dbms = 'postgres'
-        host = 'localhost'
-        dbName = 'fias'
-        dbUser = 'cuba'
-        dbPassword = 'cuba'
-    }
-
-    task updateDb(dependsOn: assembleDbScripts, description: 'Updates local database', type: CubaDbUpdate) {
-        dbms = 'postgres'
-        host = 'localhost'
-        dbName = 'fias'
-        dbUser = 'cuba'
-        dbPassword = 'cuba'
-    }
-}
-    
-configure(webModule) {
-    configurations {
-        webcontent
-    }
-
-    dependencies {
-        compileOnly(servletApi)
-        compile(globalModule)
-
-    }
-
-    task webArchive(type: Zip) {
-        from file("$buildDir/web")
-        from file('web')
-        classifier = 'web'
-    }
-
-    artifacts {
-        archives webArchive
-    }
-
-    task deployConf(type: Copy) {
-        from file('src')
-        include "com/groupstp/fias/**"
-        into "$cuba.appHome/${modulePrefix}/conf"
-    }
-
-    task clearMessagesCache(type: CubaClearMessagesCache) {
-        appName = "${modulePrefix}"
-    }
-    deployConf.dependsOn clearMessagesCache
-
-    task cleanConf(description: 'Cleans up conf directory', type: Delete) {
-        delete "$cuba.appHome/${modulePrefix}/conf"
-    }
-
-    task deploy(dependsOn: [assemble, cleanConf], type: CubaDeployment) {
-        appName = "${modulePrefix}"
-        appJars(modulePrefix + '-global', modulePrefix + '-web')
-    }
-}
-
-
-
-
-
-task undeploy(type: Delete, dependsOn: ":${modulePrefix}-web:cleanConf") {
-    delete("$cuba.tomcat.dir/shared")
-    delete("$cuba.tomcat.dir/webapps/${modulePrefix}-core")
-    delete("$cuba.tomcat.dir/webapps/${modulePrefix}")
-}
-
-task restart(dependsOn: ['stop', ":${modulePrefix}-core:deploy", ":${modulePrefix}-web:deploy"], description: 'Redeploys applications and restarts local Tomcat') {
-    doLast {
-        ant.waitfor(maxwait: 6, maxwaitunit: 'second', checkevery: 2, checkeveryunit: 'second') {
-            not {
-                socket(server: 'localhost', port: '8787')
-            }
-        }
-    }
-}
-restart.finalizedBy start
-

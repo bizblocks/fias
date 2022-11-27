@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<fetchPlans xmlns="http://jmix.io/schema/core/fetch-plans">
+    <fetchPlan class="com.groupstp.fias.entity.FiasEntity"
+          extends="_local"
+          name="parent">
+        <property name="parentAdm"
+                  fetchPlan="_instance_name"/>
+        <property name="parentMun" fetchPlan="_instance_name"/>
+    </fetchPlan>
+    <fetchPlan class="com.groupstp.fias.entity.Autonomy"
+          extends="_local"
+          name="parent">
+        <property name="parentAdm"
+                  fetchPlan="_instance_name"/>
+        <property name="parentMun" fetchPlan="_instance_name"/>
+    </fetchPlan>
+    <fetchPlan class="com.groupstp.fias.entity.Area"
+          extends="_local"
+          name="parent">
+        <property name="parentAdm"
+                  fetchPlan="_instance_name"/>
+        <property name="parentMun" fetchPlan="_instance_name"/>
+    </fetchPlan>
+    <fetchPlan class="com.groupstp.fias.entity.City"
+          extends="_local"
+          name="parent">
+        <property name="parentMun" fetchPlan="_instance_name"/>
+        <property name="parentAdm" fetchPlan="_instance_name"/>
+    </fetchPlan>
+    <fetchPlan class="com.groupstp.fias.entity.Community"
+          extends="_local"
+          name="parent">
+        <property name="parentAdm"
+                  fetchPlan="_instance_name"/>
+        <property name="parentMun" fetchPlan="_instance_name"/>
+    </fetchPlan>
+    <fetchPlan class="com.groupstp.fias.entity.Location"
+          extends="_local"
+          name="parent">
+        <property name="parentAdm"
+                  fetchPlan="_instance_name"/>
+        <property name="parentMun" fetchPlan="_instance_name"/>
+    </fetchPlan>
+    <fetchPlan class="com.groupstp.fias.entity.Region"
+          extends="_local"
+          name="parent">
+        <property name="parentAdm"
+                  fetchPlan="_instance_name"/>
+        <property name="parentMun" fetchPlan="_instance_name"/>
+    </fetchPlan>
+    <fetchPlan class="com.groupstp.fias.entity.Street"
+          extends="_local"
+          name="parent">
+        <property name="parentAdm"
+                  fetchPlan="_instance_name"/>
+        <property name="parentMun" fetchPlan="_instance_name"/>
+    </fetchPlan>
+    <fetchPlan class="com.groupstp.fias.entity.House"
+          extends="_local"
+          name="parent">
+        <property name="parentAdm"
+                  fetchPlan="_instance_name"/>
+        <property name="parentMun" fetchPlan="_instance_name"/>
+    </fetchPlan>
+    <fetchPlan entity="fias_AdmRegion" name="parent" extends="_local">
+        <property name="parentAdm" fetchPlan="_instance_name"/>
+        <property name="parentMun" fetchPlan="_instance_name"/>
+    </fetchPlan>
+    <fetchPlan entity="fias_Locality" name="parent" extends="_local">
+        <property name="parentAdm" fetchPlan="_instance_name"/>
+        <property name="parentMun" fetchPlan="_instance_name"/>
+    </fetchPlan>
+    <fetchPlan entity="fias_MunRegion" name="parent" extends="_local">
+        <property name="parentAdm" fetchPlan="_instance_name"/>
+        <property name="parentMun" fetchPlan="_instance_name"/>
+    </fetchPlan>
+    <fetchPlan entity="fias_Settlement" name="parent" extends="_local">
+        <property name="parentAdm" fetchPlan="_instance_name"/>
+        <property name="parentMun" fetchPlan="_instance_name"/>
+    </fetchPlan>
+    <fetchPlan entity="fias_PlanningStructure" name="parent" extends="_local">
+        <property name="parentAdm" fetchPlan="_instance_name"/>
+        <property name="parentMun" fetchPlan="_instance_name"/>
+    </fetchPlan>
+    <fetchPlan entity="fias_Address" name="full" extends="_local">
+        <property name="house" fetchPlan="_instance_name"/>
+        <property name="stead" fetchPlan="_instance_name"/>
+        <property name="fiasEntity" fetchPlan="_instance_name"/>
+    </fetchPlan>
+    <fetchPlan entity="fias_Stead" name="parent" extends="_local">
+        <property name="parentAdm" fetchPlan="_instance_name"/>
+        <property name="parentMun" fetchPlan="_instance_name"/>
+    </fetchPlan>
+</fetchPlans>
