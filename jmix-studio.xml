@@ -24,6 +24,62 @@
   </component>
   <component name="JmixLiquibaseChangesConfig">
     <exclude-change idName="IDX_FIAS_FIAS_ENTITY_CODE" tagName="createIndex" />
+    <exclude-change idName="address" tagName="dropTable" />
+    <exclude-change idName="ddcrd_diagnose_execution_log" tagName="dropTable" />
+    <exclude-change idName="sec_constraint" tagName="dropTable" />
+    <exclude-change idName="sec_group" tagName="dropTable" />
+    <exclude-change idName="sec_group_hierarchy" tagName="dropTable" />
+    <exclude-change idName="sec_localized_constraint_msg" tagName="dropTable" />
+    <exclude-change idName="sec_permission" tagName="dropTable" />
+    <exclude-change idName="sec_remember_me" tagName="dropTable" />
+    <exclude-change idName="sec_role" tagName="dropTable" />
+    <exclude-change idName="sec_screen_history" tagName="dropTable" />
+    <exclude-change idName="sec_session_attr" tagName="dropTable" />
+    <exclude-change idName="sec_session_log" tagName="dropTable" />
+    <exclude-change idName="sec_user_role" tagName="dropTable" />
+    <exclude-change idName="sec_user_setting" tagName="dropTable" />
+    <exclude-change idName="sys_db_changelog" tagName="dropTable" />
+    <exclude-change idName="sys_entity_statistics" tagName="dropTable" />
+    <exclude-change idName="sys_fts_queue" tagName="dropTable" />
+    <exclude-change idName="sys_jmx_instance" tagName="dropTable" />
+    <exclude-change idName="sys_lock_config" tagName="dropTable" />
+    <exclude-change idName="sys_query_result" tagName="dropTable" />
+    <exclude-change idName="idx_fias_entity_on_parent" tagName="dropIndex" />
+    <exclude-change idName="idx_fias_entity_parent_mun" tagName="dropIndex" />
+    <exclude-change idName="idx_fias_house_parent_adm" tagName="dropIndex" />
+    <exclude-change idName="idx_fias_house_parent_mun" tagName="dropIndex" />
+    <exclude-change idName="idx_fias_stead_parent_adm" tagName="dropIndex" />
+    <exclude-change idName="idx_fias_stead_parent_mun" tagName="dropIndex" />
+    <exclude-change idName="audit_entity_snapshot#author_id" tagName="dropColumn" />
+    <exclude-change idName="sec_user#change_password_at_logon" tagName="dropColumn" />
+    <exclude-change idName="sec_user#create_ts" tagName="dropColumn" />
+    <exclude-change idName="sec_user#created_by" tagName="dropColumn" />
+    <exclude-change idName="sec_user#delete_ts" tagName="dropColumn" />
+    <exclude-change idName="sec_user#deleted_by" tagName="dropColumn" />
+    <exclude-change idName="sec_user#enabled" tagName="dropColumn" />
+    <exclude-change idName="sec_user#group_id" tagName="dropColumn" />
+    <exclude-change idName="sec_user#group_names" tagName="dropColumn" />
+    <exclude-change idName="sec_user#ip_mask" tagName="dropColumn" />
+    <exclude-change idName="sec_user#language_" tagName="dropColumn" />
+    <exclude-change idName="sec_user#login" tagName="dropColumn" />
+    <exclude-change idName="sec_user#login_lc" tagName="dropColumn" />
+    <exclude-change idName="sec_user#middle_name" tagName="dropColumn" />
+    <exclude-change idName="sec_user#name" tagName="dropColumn" />
+    <exclude-change idName="sec_user#password_encryption" tagName="dropColumn" />
+    <exclude-change idName="sec_user#position_" tagName="dropColumn" />
+    <exclude-change idName="sec_user#sys_tenant_id" tagName="dropColumn" />
+    <exclude-change idName="sec_user#time_zone_auto" tagName="dropColumn" />
+    <exclude-change idName="sec_user#update_ts" tagName="dropColumn" />
+    <exclude-change idName="sec_user#updated_by" tagName="dropColumn" />
+    <exclude-change idName="email_sending_attachment#content_file_id" tagName="dropColumn" />
+    <exclude-change idName="email_sending_message#content_text_file_id" tagName="dropColumn" />
+    <exclude-change idName="sec_user_substitution#substituted_user_id" tagName="dropColumn" />
+    <exclude-change idName="sec_user_substitution#sys_tenant_id" tagName="dropColumn" />
+    <exclude-change idName="sec_user_substitution#user_id" tagName="dropColumn" />
+    <exclude-change idName="audit_entity_log#user_id" tagName="dropColumn" />
+    <exclude-change idName="sec_filter#user_id" tagName="dropColumn" />
+    <exclude-change idName="sec_search_folder#user_id" tagName="dropColumn" />
+    <exclude-change idName="ui_table_presentation#user_id" tagName="dropColumn" />
   </component>
   <component name="JmixPluginProjectSettings">
     <option name="savedDbProperties">
