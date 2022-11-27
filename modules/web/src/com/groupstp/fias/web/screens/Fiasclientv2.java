@@ -252,23 +252,26 @@ public class Fiasclientv2 extends AbstractWindow {
                 Path filePathHouses = getPathByPattern(HOUSE.getName());
                 progress = getConfigProgress(clazz);
                 PartialUnmarshallerFork<HOUSES.HOUSE> pum = garClient.getUnmarshallerFork(HOUSES.HOUSE.class, FiasFile.HOUSE, progress);
-                sendToLog(MessageFormat.format("Start Creating objects of class {0}", clazz.getSimpleName()));
-                List<House> houses = new ArrayList<>();
+                sendToLog(MessageFormat.format("Start creating objects of class {0}", clazz.getSimpleName()));
+                Map<UUID, House> houses = new HashMap<>();
                 while (pum.hasNext()) {
                     if (taskLifeCycle.isCancelled() || taskLifeCycle.isInterrupted()) {
                         break;
                     } else {
                         final HOUSES.HOUSE fiasHouse = pum.next();
+                        UUID uuid = UUID.fromString(fiasHouse.getOBJECTGUID());
+                        if(houses.containsKey(uuid) ) {
+                            continue;
+                        }
                         House house = getHouseEntity(fiasHouse);
                         house = processHouseEntity(fiasHouse, house);
-                        if (house != null)
-                            houses.add(house);
+                        houses.put(uuid, house);
                     }
                     progress = pum.getInputStream().getProgress();
                     percentValue = (int) (Math.abs((double) progress / (double) Files.size(filePathHouses) * 100));
                     taskLifeCycle.publish(percentValue);
                     if (houses.size() == batchSize) {
-                        CommitContext commitContext = new CommitContext(houses);
+                        CommitContext commitContext = new CommitContext(houses.values());
                         dataManager.commit(commitContext);
                         log.debug(MessageFormat.format("{0} new Houses were processed (class = {1}), reached {2}% of file",
                                 houses.size(),
@@ -277,9 +280,8 @@ public class Fiasclientv2 extends AbstractWindow {
                         houses.clear();
                     }
                 }
-                dataManager.commit(new CommitContext(houses));
+                dataManager.commit(new CommitContext(houses.values()));
                 sendToLog(MessageFormat.format("Finished Creating objects of class {0}", clazz.getSimpleName()));
-
             }
 
             void loadParents() throws JAXBException, IOException {
@@ -498,8 +500,6 @@ public class Fiasclientv2 extends AbstractWindow {
 
         return stead;
     }
-    
-
 
     private House getHouseEntity(HOUSES.HOUSE fiasHouse) {
         final UUID entityId;
@@ -541,7 +541,7 @@ public class Fiasclientv2 extends AbstractWindow {
         house.setValue("parentMun", parentEntityMun, true);
 
         if(parameters.containsKey(fiasHouse.getOBJECTID())) {
-            Map values = parameters.get(fiasHouse.getOBJECTID());
+            Map<String, Object> values = parameters.get(fiasHouse.getOBJECTID());
             values.forEach((k,v) -> house.setValue(k.toString() ,v, true));
         }
         house.setValue("garId", fiasHouse.getOBJECTID(), true);

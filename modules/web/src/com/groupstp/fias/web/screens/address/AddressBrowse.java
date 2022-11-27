@@ -1,5 +1,6 @@
 package com.groupstp.fias.web.screens.address;
 
+import com.groupstp.fias.entity.FiasEntity;
 import com.groupstp.fias.entity.House;
 import com.groupstp.fias.service.NormService;
 import com.haulmont.cuba.gui.ScreenBuilders;
@@ -25,6 +26,8 @@ public class AddressBrowse extends MasterDetailScreen<Address> {
     private Table<House> houseTable;
     @Inject
     private ScreenBuilders screenBuilders;
+    @Inject
+    private Table<FiasEntity> fiasEntityTable;
 
     @Subscribe("normalizeBtn")
     public void onNormalizeBtnClick(Button.ClickEvent event) {
@@ -35,6 +38,8 @@ public class AddressBrowse extends MasterDetailScreen<Address> {
     public void onAfterInit(AfterInitEvent event) {
         houseTable.setItemClickAction(new BaseAction("houseClickAction")
                 .withHandler(e -> screenBuilders.editor(houseTable).build().show()));
+        fiasEntityTable.setItemClickAction(new BaseAction("fiasClickAction")
+                .withHandler(e -> screenBuilders.editor(fiasEntityTable).withScreenId("fias_FiasEntity.edit").build().show()));
     }
     
 }

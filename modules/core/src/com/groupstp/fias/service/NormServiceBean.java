@@ -47,28 +47,27 @@ public class NormServiceBean implements NormService {
     private MetadataTools metadataTools;
 
     @Override
+    // Declaring a method named normalize that takes a String as a parameter and returns an Address.
     public Address normalize(String srcAddress) {
 
-        //разбиваем адрес на составные части, разделитель - запятая
-        String[] components = srcAddress.split(",");
+        String[] components = findComponents(normalizeString(srcAddress));
         //последний найденный компонент
         AtomicReference<Integer> lastType = new AtomicReference<>(0);
         //тип - компонент
         Map<Integer, Integer> types = new HashMap<>();
         for(int j=0; j<components.length;j++) {
             components[j] = components[j].trim();
+            String component = components[j];
             for (int i = 1; i < levels.size()+1; i++) {
                 if (types.containsKey(i))
                     continue;
-                String component = components[j].trim();
                 String tag = checkLevel(component, levels.get(i).getSimpleName());
                 if(tag==null) {
                     continue;
                 }
                 types.put(i, j);
-
                 components[j] = (" "+component+" ").replaceAll(" "+tag+" ", "").trim();
-                break;
+                //break;
             }
         }
 
@@ -102,7 +101,7 @@ public class NormServiceBean implements NormService {
             parents.forEach(p->log.info(metadataTools.getInstanceName(p)));
             //если у следующей компоненты нет типа
             int nc = types.get(type)+1;
-            while (components.length>nc-1 && !types.containsValue(nc)) {
+            while (components.length>nc && !types.containsValue(nc)) {
                 for(int i=type+1;i<levels.size()+1;i++) {
                     int finalNc = nc;
                     int finalI = i;
@@ -176,6 +175,33 @@ public class NormServiceBean implements NormService {
             res.put("FiasEntities", fiasList);
         }
 
+        return res;
+    }
+
+    String normalizeString(String srcAddress){
+        return srcAddress.
+                replaceAll("\\.(\\d|\\w)", "\\. $1")
+                .replaceAll("( {2,})", " ");
+    }
+
+    String[] findComponents(String srcAddress) {
+        String [] res = srcAddress.split(",");
+        //если разделитель не запятая или слишком мало запятых, пробуем пробел
+        if(res.length==1 || res.length*2<srcAddress.split(" ").length) {
+            String[] spaceComponents = srcAddress.replaceAll(", ", " ").replaceAll(",", " ").split(" ");
+            List<String> resLit = new ArrayList<>();
+            int i = 0;
+            while(i<spaceComponents.length) {
+                List<String> components = new ArrayList<>();
+                components.add(spaceComponents[i]);
+                while (i+1<spaceComponents.length && determineComponentType(spaceComponents[i+1]).size()==0) {
+                    components.add(spaceComponents[++i]);
+                }
+                resLit.add(String.join(" ", components));
+                i++;
+            }
+            res = resLit.toArray(new String[0]);
+        }
         return res;
     }
 
@@ -288,17 +314,19 @@ public class NormServiceBean implements NormService {
         if(entities.size()>0)
             return entities;
         //нечёткий поиск
-        for(int i=0;i<name.length();i++) {
-            for(int j=i;j<name.length();j++) {
-                char[] _chars = name.toCharArray();
-                _chars[i] = '_';
-                _chars[j] = '_';
-                String _name = new String(_chars);
-                entities.addAll(dataManager.loadList(
-                        LoadContext.create(clazz).setQuery(
-                            LoadContext.createQuery("select e from fias_"+clazz.getSimpleName()+" e where lower(e.name) like lower(:name)")
-                                .setParameter("name", _name)
-                                .setCacheable(true))));
+        if(name.length()>4) {
+            for (int i = 0; i < name.length(); i++) {
+                for (int j = i; j < name.length(); j++) {
+                    char[] _chars = name.toCharArray();
+                    _chars[i] = '_';
+                    _chars[j] = '_';
+                    String _name = new String(_chars);
+                    entities.addAll(dataManager.loadList(
+                            LoadContext.create(clazz).setQuery(
+                                    LoadContext.createQuery("select e from fias_" + clazz.getSimpleName() + " e where lower(e.name) like lower(:name)")
+                                            .setParameter("name", _name)
+                                            .setCacheable(true))));
+                }
             }
         }
         return entities;
@@ -446,6 +474,12 @@ public class NormServiceBean implements NormService {
         return entities;
     }
 
+    /**
+     * Get the list of entities with a given fias code and class.
+     *
+     * @param fias the FIAS code of the object
+     * @return List of entities
+     */
     List<StandardEntity> getEntityForClass(String fias, Class<? extends StandardEntity> clazz) {
         return dataManager.load(clazz)
                 .query("e.id=?1", UUID.fromString(fias))

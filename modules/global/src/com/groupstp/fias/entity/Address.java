@@ -2,9 +2,6 @@ package com.groupstp.fias.entity;
 
 import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
-import com.haulmont.cuba.core.entity.annotation.OnDelete;
-import com.haulmont.cuba.core.entity.annotation.OnDeleteInverse;
-import com.haulmont.cuba.core.global.DeletePolicy;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -33,12 +30,9 @@ public class Address extends StandardEntity {
     @JoinTable(name = "FIAS_ADDRESS_FIAS_ENTITY_LINK",
             joinColumns = @JoinColumn(name = "ADDRESS_ID"),
             inverseJoinColumns = @JoinColumn(name = "FIAS_ENTITY_ID"))
-    @OnDeleteInverse(DeletePolicy.CASCADE)
-    @OnDelete(DeletePolicy.DENY)
     @ManyToMany
     protected List<FiasEntity> fiasEntity;
 
-    @OnDeleteInverse(DeletePolicy.CASCADE)
     @ManyToMany
     @JoinTable(name = "FIAS_ADDRESS_STEAD_LINK",
             joinColumns = @JoinColumn(name = "ADDRESS_ID"),
