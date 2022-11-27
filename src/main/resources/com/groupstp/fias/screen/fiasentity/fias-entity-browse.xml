@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://jmix.io/schema/ui/window"
+    xmlns:dynattr="http://jmix.io/schema/dynattr/ui"
+        caption="msg://fiasEntityBrowser.caption"
+        focusComponent="fiasEntitiesTable">
+    <data>
+        <collection id="fiasEntitiesDc" class="com.groupstp.fias.entity.FiasEntity">
+            <fetchPlan extends="_base">
+                <property name="parentAdm" fetch="JOIN" fetchPlan="parent"/>
+                <property name="parentMun" fetch="JOIN" fetchPlan="parent"/>
+            </fetchPlan>
+            <loader id="fiasEntitiesDl" maxResults="100000">
+                <query>
+                    <![CDATA[select e from fias$FiasEntity e where e.addressLevel<9 order by e.addressLevel]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true" />
+        <dynattr:dynamicAttributes />
+        <screenSettings id="settingsFacet" auto="true" />
+        <presentations auto="true" />
+    </facets>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="fiasEntitiesTable"
+            spacing="true">
+        <filter dataLoader="fiasEntitiesDl">
+            <properties include=".*"/>
+        </filter>
+        <radioButtonGroup id="hierarchySwitch" orientation="horizontal" caption="msg://hierarchySwitch.caption" />
+        <treeTable id="fiasEntitiesTable"
+                   multiselect="true"
+                    hierarchyProperty="parentAdm"
+                   width="100%" dataContainer="fiasEntitiesDc" >
+            <actions>
+                <action id="create" type="create"/>
+                <action id="edit" type="edit"/>
+                <action id="remove" type="remove"/>
+                <action id="excel" type="excelExport"/>
+                <action id="refresh" type="refresh"/>
+            </actions>
+            <simplePagination itemsPerPageDefaultValue="100000"/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="fiasEntitiesTable.create"/>
+                <button id="editBtn"
+                        action="fiasEntitiesTable.edit"/>
+                <button id="removeBtn"
+                        action="fiasEntitiesTable.remove"/>
+                <button id="excelBtn"
+                        action="fiasEntitiesTable.excel"/>
+                <button id="refreshBtn"
+                        action="fiasEntitiesTable.refresh"/>
+            </buttonsPanel>
+            <columns>
+                <column id="name"/>
+                <column id="parentAdm"/>
+                <column id="parentMun"/>
+                <column id="postalCode"/>
+                <column id="offname"/>
+                <column id="formalname"/>
+                <column id="possibleNames"/>
+                <column id="garId"/>
+                <column id="shortname"/>
+                <column id="updatedate"/>
+                <column id="actstatus"/>
+                <column id="operstatus"/>
+                <column id="startdate"/>
+                <column id="enddate"/>
+                <column id="prevID"/>
+                <column id="addressLevel"/>
+            </columns>
+        </treeTable>
+    </layout>
+</window>

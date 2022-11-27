@@ -2,16 +2,15 @@
 <menu-config xmlns="http://jmix.io/schema/ui/menu">
 
     <menu id="application" caption="msg://com.groupstp.fias/menu.application" insertBefore="administration">
+        <item screen="fias_FiasEntity.browse" caption="msg://menu_config.fias.screen.fiasentity/fiasEntityBrowser.caption"/>
+        <item screen="fias_House.browse" caption="msg://com.groupstp.fias.web/menu-config.fias$House.browse"/>
+        <item screen="fiasClientV2" caption="msg://menu_config.fias.screen.fiasentity/fiasClientV2.caption"/>
+        <item screen="fias_NormalizeAddress" caption="msg://com.groupstp.fias.web/menu_config.fias_NormalizeAddress"/>
+        <item screen="fias_Address.browse" caption="msg://com.groupstp.fias.web/menu_config.fias_Address.browse"/>
+        <item screen="fias$FiasEntity-tmp.browse"
+            caption="msg://com.groupstp.fias.screen.fiasentity/fiasEntityBrowseTmp.menu" />
+        <separator>!</separator>
         <item screen="sec$User.browse" caption="msg://com.groupstp.fias.screen.user/UserBrowse.caption"/>
         <item screen="themeSettingsScreen" caption="msg://io.jmix.ui.app.themesettings/themeSettings.caption"/>
     </menu>
-    <menu id="application-fias"
-          insertBefore="sec$Role.browse">
-        <item screen="fias$FiasEntity.browse"/>
-        <item screen="fias_House.browse" caption="msg://com.groupstp.fias.web/menu-config.fias$House.browse"/>
-        <item screen="fiasClientv2"/>
-        <item screen="fias_NormalizeAddress" caption="msg://com.groupstp.fias.web/menu_config.fias_NormalizeAddress"/>
-        <item screen="fias_Address.browse" caption="msg://com.groupstp.fias.web/menu_config.fias_Address.browse"/>
-    </menu>
-
 </menu-config>

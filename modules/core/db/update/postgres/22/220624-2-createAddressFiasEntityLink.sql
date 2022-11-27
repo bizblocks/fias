@@ -1,2 +1,0 @@
-alter table FIAS_ADDRESS_FIAS_ENTITY_LINK add constraint FK_ADDFIAENT_FIAS_ENTITY foreign key (FIAS_ENTITY_ID) references FIAS_FIAS_ENTITY(ID);
-alter table FIAS_ADDRESS_FIAS_ENTITY_LINK add constraint FK_ADDFIAENT_ADDRESS foreign key (ADDRESS_ID) references FIAS_ADDRESS(ID);

@@ -25,6 +25,8 @@ import io.jmix.ui.executor.BackgroundTask;
 import io.jmix.ui.executor.BackgroundTaskHandler;
 import io.jmix.ui.executor.BackgroundWorker;
 import io.jmix.ui.executor.TaskLifeCycle;
+import io.jmix.ui.screen.UiController;
+import io.jmix.ui.screen.UiDescriptor;
 import org.meridor.fias.enums.AddressLevel;
 import org.meridor.fias.enums.FiasFile;
 import org.meridor.fias.loader.XMLLoader;
@@ -48,6 +50,8 @@ import java.util.function.Predicate;
 
 import static org.meridor.fias.enums.FiasFile.*;
 
+@UiController("fiasClientV2")
+@UiDescriptor("fiasClientV2.xml")
 public class Fiasclientv2 extends AbstractWindow {
     private static final Logger log = LoggerFactory.getLogger("FiasClient");
     @Inject
